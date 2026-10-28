@@ -1,0 +1,42 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { schema, type Database, type DbExecutor } from '@planciait/db';
+import { DATABASE } from '../database/database.module.js';
+
+export type AuditAction =
+  | 'auth.setup_completed'
+  | 'auth.login_succeeded'
+  | 'auth.login_failed'
+  | 'auth.mfa_failed'
+  | 'auth.mfa_enrolled'
+  | 'auth.backup_code_used'
+  | 'auth.account_locked'
+  | 'auth.logout'
+  | 'user.created';
+
+export interface AuditEntry {
+  action: AuditAction;
+  actorUserId?: string | null;
+  targetType?: string;
+  targetId?: string;
+  ipAddress?: string;
+  /** Non-sensitive context only: never secrets, tokens, codes or vault content. */
+  details?: Record<string, string | number | boolean | null>;
+}
+
+/** Append-only: the table rejects UPDATE and DELETE at the database level. */
+@Injectable()
+export class AuditService {
+  constructor(@Inject(DATABASE) private readonly database: Database) {}
+
+  /** Pass `tx` to write the entry in the same transaction as the audited change. */
+  async record(entry: AuditEntry, tx: DbExecutor = this.database.db): Promise<void> {
+    await tx.insert(schema.auditLog).values({
+      action: entry.action,
+      actorUserId: entry.actorUserId ?? null,
+      targetType: entry.targetType ?? null,
+      targetId: entry.targetId ?? null,
+      ipAddress: entry.ipAddress ?? null,
+      details: entry.details ?? {},
+    });
+  }
+}

@@ -62,6 +62,6 @@ describe('GET /health', () => {
 
     const response = await fetch(`${url}/unmarked`);
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(401);
   });
 });

@@ -11,6 +11,7 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
 
   const config = app.get<AppConfig>(APP_CONFIG);
+  app.set('trust proxy', config.trustProxy);
   await app.listen(config.port, config.host);
   Logger.log(`API listening on ${config.host}:${config.port}`, 'Bootstrap');
 }

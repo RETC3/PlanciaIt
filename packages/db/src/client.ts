@@ -4,6 +4,10 @@ import pg from 'pg';
 import * as schema from './schema/index.js';
 
 export type Db = NodePgDatabase<typeof schema>;
+/** A transaction handle, as passed to `db.transaction(async (tx) => …)`. */
+export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];
+/** Anything that can run queries: the pool-backed client or an open transaction. */
+export type DbExecutor = Db | Tx;
 
 export interface Database {
   db: Db;
