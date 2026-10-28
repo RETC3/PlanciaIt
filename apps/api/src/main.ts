@@ -1,0 +1,18 @@
+import 'reflect-metadata';
+import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
+import { AppModule } from './app.module.js';
+import { APP_CONFIG, type AppConfig } from './config/config.js';
+
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.disable('x-powered-by');
+  app.enableShutdownHooks();
+
+  const config = app.get<AppConfig>(APP_CONFIG);
+  await app.listen(config.port, config.host);
+  Logger.log(`API listening on ${config.host}:${config.port}`, 'Bootstrap');
+}
+
+void bootstrap();
