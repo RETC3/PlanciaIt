@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { sessionQueryKey, setup, setupStatusQueryKey } from './api';
 import { authErrorKey } from './errors';
 import { Field, FormError } from './form';
+import { masterPasswordError, type MasterPasswordError } from './master-password';
+import { MasterPasswordFields } from './master-password-fields';
 
 export function SetupPage() {
   const { t } = useTranslation();
@@ -17,7 +19,7 @@ export function SetupPage() {
   const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<MasterPasswordError | null>(null);
 
   const mutation = useMutation({
     mutationFn: setup,
@@ -30,15 +32,9 @@ export function SetupPage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (password.length < MASTER_PASSWORD_MIN_LENGTH) {
-      setValidationError(t('auth.setup.passwordTooShort', { min: MASTER_PASSWORD_MIN_LENGTH }));
-      return;
-    }
-    if (password !== confirmPassword) {
-      setValidationError(t('auth.setup.passwordMismatch'));
-      return;
-    }
-    setValidationError(null);
+    const error = masterPasswordError(password, confirmPassword);
+    setValidationError(error);
+    if (error) return;
     mutation.mutate({ username, displayName, password });
   }
 
@@ -73,26 +69,19 @@ export function SetupPage() {
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
           />
-          <Field
-            id="password"
-            type="password"
-            label={t('auth.fields.password')}
-            autoComplete="new-password"
-            required
-            hint={t('auth.setup.passwordHint', { min: MASTER_PASSWORD_MIN_LENGTH })}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+          <MasterPasswordFields
+            password={password}
+            confirmation={confirmPassword}
+            onPasswordChange={setPassword}
+            onConfirmationChange={setConfirmPassword}
           />
-          <Field
-            id="confirmPassword"
-            type="password"
-            label={t('auth.fields.confirmPassword')}
-            autoComplete="new-password"
-            required
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
+          <FormError
+            message={
+              validationError
+                ? t(`auth.masterPassword.${validationError}`, { min: MASTER_PASSWORD_MIN_LENGTH })
+                : apiError
+            }
           />
-          <FormError message={validationError ?? apiError} />
           <Button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? t('auth.working') : t('auth.setup.submit')}
           </Button>

@@ -1,4 +1,5 @@
 import {
+  inspectInvitationResponseSchema,
   mfaConfirmResponseSchema,
   mfaEnrollmentResponseSchema,
   mfaVerifyResponseSchema,
@@ -6,6 +7,7 @@ import {
   preloginResponseSchema,
   sessionResponseSchema,
   setupStatusResponseSchema,
+  type InspectInvitationResponse,
   type MfaConfirmResponse,
   type MfaEnrollmentResponse,
   type MfaVerifyRequest,
@@ -57,6 +59,27 @@ export async function setup(input: SetupInput): Promise<PendingSessionResponse> 
   return apiRequest('/auth/setup', pendingSessionResponseSchema, {
     method: 'POST',
     body: { username: input.username, displayName: input.displayName, kdf, authKey },
+  });
+}
+
+export async function inspectInvitation(token: string): Promise<InspectInvitationResponse> {
+  return apiRequest('/auth/invitations/inspect', inspectInvitationResponseSchema, {
+    method: 'POST',
+    body: { token },
+  });
+}
+
+/** Sets the invited user's master password; as at setup, only the derived auth key is sent. */
+export async function acceptInvitation(
+  token: string,
+  password: string,
+): Promise<PendingSessionResponse> {
+  const { createKdfParams, deriveMasterKeys } = await loadCrypto();
+  const kdf = await createKdfParams();
+  const { authKey } = await deriveMasterKeys(password, kdf);
+  return apiRequest('/auth/invitations/accept', pendingSessionResponseSchema, {
+    method: 'POST',
+    body: { token, kdf, authKey },
   });
 }
 

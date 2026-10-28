@@ -13,10 +13,13 @@ import {
   sessionQueryKey,
   setupStatusQueryKey,
 } from './features/auth/api';
+import { InvitePage } from './features/auth/invite-page';
 import { LoginPage } from './features/auth/login-page';
 import { MfaEnrollPage } from './features/auth/mfa-enroll-page';
 import { MfaVerifyPage } from './features/auth/mfa-verify-page';
 import { SetupPage } from './features/auth/setup-page';
+import { UserDetailPage } from './features/users/user-detail-page';
+import { UsersPage } from './features/users/users-page';
 import { queryClient } from './lib/query-client';
 import { AppLayout } from './routes/app-layout';
 import { AuthLayout } from './routes/auth-layout';
@@ -83,6 +86,13 @@ const loginRoute = createRoute({
   },
 });
 
+/** Open to anyone holding a link; the token itself is checked by the API. */
+const inviteRoute = createRoute({
+  getParentRoute: () => authLayoutRoute,
+  path: '/invite',
+  component: InvitePage,
+});
+
 function requireStage(stage: SessionStage) {
   return async ({ context }: { context: RouterContext }) => {
     const session = await loadSession(context);
@@ -118,9 +128,39 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
+const adminRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  id: 'admin',
+  beforeLoad: async ({ context }) => {
+    const session = await loadSession(context);
+    if (session?.user.role !== 'admin') throw redirect({ to: '/' });
+  },
+});
+
+const usersRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/users',
+  component: UsersPage,
+});
+
+const userDetailRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/users/$userId',
+  component: function UserDetailRoute() {
+    const { userId } = userDetailRoute.useParams();
+    return <UserDetailPage userId={userId} />;
+  },
+});
+
 const routeTree = rootRoute.addChildren([
-  authLayoutRoute.addChildren([setupRoute, loginRoute, mfaEnrollRoute, mfaVerifyRoute]),
-  appLayoutRoute.addChildren([homeRoute]),
+  authLayoutRoute.addChildren([
+    setupRoute,
+    loginRoute,
+    inviteRoute,
+    mfaEnrollRoute,
+    mfaVerifyRoute,
+  ]),
+  appLayoutRoute.addChildren([homeRoute, adminRoute.addChildren([usersRoute, userDetailRoute])]),
 ]);
 
 export const router = createRouter({ routeTree, context: { queryClient } });

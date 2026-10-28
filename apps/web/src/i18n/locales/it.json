@@ -3,6 +3,16 @@
     "name": "PlanciaIT",
     "tagline": "La plancia di comando dell'IT manager."
   },
+  "common": {
+    "loading": "Caricamento…",
+    "save": "Salva",
+    "saved": "Salvato",
+    "cancel": "Annulla"
+  },
+  "nav": {
+    "home": "Panoramica",
+    "users": "Utenti"
+  },
   "auth": {
     "working": "Verifica in corso…",
     "logout": "Esci",
@@ -17,9 +27,6 @@
     "setup": {
       "title": "Configurazione iniziale",
       "description": "Crea l'account amministratore dell'IT manager.",
-      "passwordHint": "Almeno {{min}} caratteri. Non viene mai inviata al server e non può essere recuperata: conservala con cura.",
-      "passwordTooShort": "La master password deve avere almeno {{min}} caratteri.",
-      "passwordMismatch": "Le due password non coincidono.",
       "submit": "Crea amministratore"
     },
     "login": {
@@ -56,6 +63,77 @@
       "setupDone": "La configurazione iniziale è già stata completata.",
       "sessionExpired": "La sessione è scaduta. Accedi di nuovo.",
       "generic": "Si è verificato un errore imprevisto. Riprova."
+    },
+    "masterPassword": {
+      "hint": "Almeno {{min}} caratteri. Non viene mai inviata al server e non può essere recuperata: conservala con cura.",
+      "tooShort": "La master password deve avere almeno {{min}} caratteri.",
+      "mismatch": "Le due password non coincidono."
+    },
+    "invite": {
+      "title": "Attiva il tuo account",
+      "description": "Ciao {{displayName}}, scegli la master password per l'utente {{username}}. Subito dopo configurerai l'autenticazione a due fattori.",
+      "invalid": "Il link d'invito non è valido o è scaduto. Chiedi all'amministratore di generarne uno nuovo.",
+      "submit": "Attiva account"
+    }
+  },
+  "users": {
+    "title": "Utenti",
+    "neverLoggedIn": "Mai",
+    "fields": {
+      "role": "Ruolo",
+      "status": "Stato",
+      "lastLogin": "Ultimo accesso"
+    },
+    "roles": {
+      "admin": "Amministratore",
+      "technician": "Tecnico"
+    },
+    "status": {
+      "invited": "Invitato",
+      "invitation_expired": "Invito scaduto",
+      "mfa_pending": "MFA da configurare",
+      "active": "Attivo",
+      "disabled": "Disattivato"
+    },
+    "create": {
+      "open": "Nuovo utente",
+      "title": "Nuovo utente",
+      "usernameHint": "Lettere, numeri, punto, trattino e trattino basso. Non modificabile in seguito.",
+      "submit": "Crea e genera invito"
+    },
+    "invitation": {
+      "title": "Link d'invito per {{username}}",
+      "description": "Invia questo link alla persona tramite un canale sicuro. È valido una sola volta, fino al {{expiresAt}}. Non verrà mostrato di nuovo: se lo perdi, generane uno nuovo.",
+      "copy": "Copia link",
+      "copied": "Copiato",
+      "done": "Fatto"
+    },
+    "detail": {
+      "profile": "Profilo",
+      "access": "Accesso",
+      "accessDescription": "Ogni azione termina subito tutte le sessioni dell'utente e viene registrata nell'audit log.",
+      "createdAt": "creato il {{date}}",
+      "selfRoleHint": "Non puoi cambiare il tuo ruolo.",
+      "selfAccessHint": "Disattivazione e reimpostazione dell'accesso non sono disponibili sul tuo account."
+    },
+    "actions": {
+      "deactivate": "Disattiva",
+      "reactivate": "Riattiva",
+      "resetMfa": "Reimposta MFA",
+      "resetAccess": "Reimposta accesso",
+      "newInvitation": "Nuovo link d'invito"
+    },
+    "confirm": {
+      "deactivate": "Disattivare l'utente? Verrà disconnesso subito e non potrà più accedere.",
+      "reactivate": "Riattivare l'utente?",
+      "resetMfa": "Reimpostare la MFA? L'utente verrà disconnesso e dovrà configurare di nuovo l'app di autenticazione al prossimo accesso.",
+      "resetAccess": "Reimpostare l'accesso? La master password e la MFA attuali verranno eliminate e verrà generato un nuovo link d'invito."
+    },
+    "errors": {
+      "usernameTaken": "Esiste già un utente con questo nome.",
+      "invalidInput": "Controlla i dati inseriti.",
+      "notAllowed": "Operazione non consentita su questo utente.",
+      "notFound": "Utente non trovato."
     }
   },
   "health": {
