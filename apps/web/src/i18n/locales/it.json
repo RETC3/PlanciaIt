@@ -1,0 +1,23 @@
+{
+  "app": {
+    "name": "PlanciaIT",
+    "tagline": "La plancia di comando dell'IT manager."
+  },
+  "health": {
+    "title": "Stato del sistema",
+    "loading": "Verifica in corso…",
+    "unreachable": "Server non raggiungibile",
+    "status": {
+      "ok": "Operativo",
+      "degraded": "Degradato"
+    },
+    "components": {
+      "api": "API",
+      "database": "Database"
+    },
+    "componentStatus": {
+      "ok": "OK",
+      "error": "Errore"
+    }
+  }
+}
