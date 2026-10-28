@@ -11,6 +11,7 @@ import {
   hashAuthKey,
   hashSecret,
   normalizeBackupCode,
+  randomBytes,
   verifyAuthKey,
 } from './server.js';
 import { fromBase64, toBase64 } from './sodium.js';
@@ -41,6 +42,12 @@ describe('tokens and digests', () => {
     const a = await generateToken();
     expect(await fromBase64(a)).toHaveLength(32);
     expect(a).not.toBe(await generateToken());
+  });
+
+  it('returns random bytes of the requested length', async () => {
+    const a = await randomBytes(20);
+    expect(a).toHaveLength(20);
+    expect(a).not.toEqual(await randomBytes(20));
   });
 
   it('hashes deterministically and compares digests', async () => {

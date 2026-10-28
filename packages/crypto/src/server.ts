@@ -23,6 +23,12 @@ export async function verifyAuthKey(hash: string, authKey: string): Promise<bool
   }
 }
 
+/** Raw random bytes, e.g. a TOTP secret. */
+export async function randomBytes(length: number): Promise<Uint8Array> {
+  const s = await getSodium();
+  return s.randombytes_buf(length);
+}
+
 /** Random opaque token (base64url), e.g. a session id. */
 export async function generateToken(bytes = 32): Promise<string> {
   const s = await getSodium();
