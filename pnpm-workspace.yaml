@@ -2,10 +2,12 @@ packages:
   - apps/*
   - packages/*
 
-# Single source of truth for versions shared across workspace packages.
+# Dependencies allowed to run install scripts (pnpm blocks all others).
 allowBuilds:
   '@swc/core': true
+  esbuild: true
 
+# Single source of truth for versions shared across workspace packages.
 catalog:
   '@types/node': ^24.19.2
   typescript: ~6.0.3

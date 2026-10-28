@@ -1,0 +1,24 @@
+# Development database only. The API and web app run on the host with `pnpm dev`.
+#   docker compose -f deploy/docker-compose.dev.yml up -d
+# Credentials are for local development only and match DEV_DATABASE_URL in packages/db.
+name: planciait-dev
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: planciait
+      POSTGRES_PASSWORD: planciait
+      POSTGRES_DB: planciait
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U planciait -d planciait']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_dev_data:

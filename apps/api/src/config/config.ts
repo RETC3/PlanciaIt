@@ -1,7 +1,5 @@
+import { DEV_DATABASE_URL } from '@planciait/db';
 import { z } from 'zod';
-
-/** Matches deploy/docker-compose.dev.yml; used only outside production. */
-const DEV_DATABASE_URL = 'postgres://planciait:planciait@localhost:5432/planciait';
 
 const envSchema = z
   .object({
