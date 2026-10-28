@@ -2,6 +2,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
   type OnModuleInit,
 } from '@nestjs/common';
@@ -20,7 +21,9 @@ import {
 } from '@planciait/crypto';
 import { and, eq, isNull, or, lt, schema, sql, type Database } from '@planciait/db';
 import type {
+  AcceptInvitationRequest,
   CurrentUser,
+  InspectInvitationResponse,
   LoginRequest,
   MfaConfirmRequest,
   MfaEnrollmentResponse,
@@ -47,6 +50,7 @@ const SETUP_LOCK_ID = 7_201_001;
 
 /** Same message for every failure, so responses do not reveal which part was wrong. */
 const INVALID_CREDENTIALS = 'Invalid credentials';
+const INVALID_INVITATION = 'Invalid or expired invitation';
 
 export interface AuthResult<T> {
   body: T;
@@ -54,6 +58,23 @@ export interface AuthResult<T> {
 }
 
 type UserRow = typeof schema.users.$inferSelect;
+
+/** A user who has chosen a master password (i.e. not a pending invitation). */
+type CredentialedUser = UserRow & {
+  authKeyHash: string;
+  kdfSalt: string;
+  kdfOpsLimit: number;
+  kdfMemLimit: number;
+};
+
+function hasCredentials(user: UserRow): user is CredentialedUser {
+  return (
+    user.authKeyHash !== null &&
+    user.kdfSalt !== null &&
+    user.kdfOpsLimit !== null &&
+    user.kdfMemLimit !== null
+  );
+}
 
 function toCurrentUser(user: UserRow): CurrentUser {
   return {
@@ -136,11 +157,58 @@ export class AuthService implements OnModuleInit {
     return { body: { stage: 'mfa_enrollment' }, session };
   }
 
+  /** Who an invitation is for, so the invited user can recognise it. */
+  async inspectInvitation(token: string, client: ClientInfo): Promise<InspectInvitationResponse> {
+    const user = await this.findInvitedUser(token, client);
+    return { username: user.username, displayName: user.displayName };
+  }
+
+  /**
+   * The invited user sets the master password (only the derived auth key
+   * arrives here) and continues straight to MFA enrollment.
+   */
+  async acceptInvitation(
+    request: AcceptInvitationRequest,
+    client: ClientInfo,
+  ): Promise<AuthResult<PendingSessionResponse>> {
+    const user = await this.findInvitedUser(request.token, client);
+    const authKeyHash = await hashAuthKey(request.authKey);
+    const tokenHash = await hashSecret(request.token);
+    const session = await this.database.db.transaction(async (tx) => {
+      // Conditional on the token so two concurrent accepts cannot both succeed.
+      const [accepted] = await tx
+        .update(schema.users)
+        .set({
+          authKeyHash,
+          kdfSalt: request.kdf.salt,
+          kdfOpsLimit: request.kdf.opsLimit,
+          kdfMemLimit: request.kdf.memLimit,
+          invitationTokenHash: null,
+          invitationExpiresAt: null,
+        })
+        .where(and(eq(schema.users.id, user.id), eq(schema.users.invitationTokenHash, tokenHash)))
+        .returning({ id: schema.users.id });
+      if (!accepted) throw new NotFoundException(INVALID_INVITATION);
+      await this.audit.record(
+        {
+          action: 'user.invitation_accepted',
+          actorUserId: user.id,
+          ipAddress: client.ipAddress,
+          targetType: 'user',
+          targetId: user.id,
+        },
+        tx,
+      );
+      return this.sessions.create(user.id, 'mfa_enrollment', client, tx);
+    });
+    return { body: { stage: 'mfa_enrollment' }, session };
+  }
+
   /** KDF parameters for the browser; unknown users get stable fake ones. */
   async prelogin(username: string, client: ClientInfo): Promise<PreloginResponse> {
     await this.throttle.assertIpAllowed(client.ipAddress);
     const user = await this.findUser(username);
-    if (user) {
+    if (user && hasCredentials(user)) {
       return { salt: user.kdfSalt, opsLimit: user.kdfOpsLimit, memLimit: user.kdfMemLimit };
     }
     return {
@@ -158,7 +226,7 @@ export class AuthService implements OnModuleInit {
     await this.throttle.assertIpAllowed(client.ipAddress);
     const user = await this.findUser(request.username);
 
-    if (!user || !user.isActive) {
+    if (!user || !user.isActive || !hasCredentials(user)) {
       await verifyAuthKey(this.dummyAuthKeyHash, request.authKey);
       return this.loginFailed(client, null, { username: request.username, reason: 'unknown_user' });
     }
@@ -296,6 +364,25 @@ export class AuthService implements OnModuleInit {
       .from(schema.users)
       .where(eq(schema.users.username, username))
       .limit(1);
+    return user;
+  }
+
+  private async findInvitedUser(token: string, client: ClientInfo): Promise<UserRow> {
+    await this.throttle.assertIpAllowed(client.ipAddress);
+    const [user] = await this.database.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.invitationTokenHash, await hashSecret(token)))
+      .limit(1);
+    const valid =
+      user !== undefined &&
+      user.isActive &&
+      user.invitationExpiresAt !== null &&
+      user.invitationExpiresAt.getTime() > Date.now();
+    if (!valid) {
+      await this.throttle.recordIpFailure(client.ipAddress);
+      throw new NotFoundException(INVALID_INVITATION);
+    }
     return user;
   }
 

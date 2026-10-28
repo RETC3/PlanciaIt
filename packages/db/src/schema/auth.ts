@@ -34,11 +34,19 @@ export const users = pgTable(
     role: userRole('role').notNull(),
     isActive: boolean('is_active').notNull().default(true),
 
-    /** Argon2id hash of the auth key derived in the browser. Never a password. */
-    authKeyHash: text('auth_key_hash').notNull(),
-    kdfSalt: text('kdf_salt').notNull(),
-    kdfOpsLimit: integer('kdf_ops_limit').notNull(),
-    kdfMemLimit: integer('kdf_mem_limit').notNull(),
+    /**
+     * Argon2id hash of the auth key derived in the browser. Never a password.
+     * The four credential columns are null while an invitation is pending:
+     * only the invited user's browser can derive them.
+     */
+    authKeyHash: text('auth_key_hash'),
+    kdfSalt: text('kdf_salt'),
+    kdfOpsLimit: integer('kdf_ops_limit'),
+    kdfMemLimit: integer('kdf_mem_limit'),
+
+    /** BLAKE2b digest of the one-time invitation token; null once accepted. */
+    invitationTokenHash: text('invitation_token_hash'),
+    invitationExpiresAt: timestamp('invitation_expires_at', { withTimezone: true }),
 
     /** TOTP secret encrypted with a server subkey; set during enrollment. */
     totpSecretEncrypted: text('totp_secret_encrypted'),
@@ -55,6 +63,11 @@ export const users = pgTable(
   (table) => [
     uniqueIndex('users_username_key').on(table.username),
     check('users_username_lowercase', sql`${table.username} = lower(${table.username})`),
+    uniqueIndex('users_invitation_token_hash_key').on(table.invitationTokenHash),
+    check(
+      'users_credentials_complete',
+      sql`num_nulls(${table.authKeyHash}, ${table.kdfSalt}, ${table.kdfOpsLimit}, ${table.kdfMemLimit}) in (0, 4)`,
+    ),
   ],
 );
 
