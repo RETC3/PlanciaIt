@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+**/dist/
+**/coverage/
+**/.turbo/
+apps/agent/
+packages/db/drizzle/
+CLAUDE.md
+LICENSE
