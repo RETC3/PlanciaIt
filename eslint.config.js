@@ -52,6 +52,13 @@ export default defineConfig(
     files: ['apps/web/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
     languageOptions: { globals: globals.browser },
+    rules: {
+      // TanStack Router redirects by throwing redirect(), which is not an Error.
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        { allow: [{ from: 'package', package: '@tanstack/router-core', name: 'Redirect' }] },
+      ],
+    },
   },
 
   // Must stay last: turns off rules that conflict with Prettier.

@@ -11,6 +11,12 @@ export const KDF_LIMITS = {
   memLimitMax: 1024 * 1024 * 1024,
 } as const;
 
+/**
+ * Enforced in the browser only: the server never sees the master password.
+ * It also protects the vault (Phase 1), so it is deliberately long.
+ */
+export const MASTER_PASSWORD_MIN_LENGTH = 12;
+
 function base64UrlOfBytes(bytes: number) {
   return z
     .string()

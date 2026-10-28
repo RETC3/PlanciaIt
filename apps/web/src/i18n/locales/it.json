@@ -3,6 +3,61 @@
     "name": "PlanciaIT",
     "tagline": "La plancia di comando dell'IT manager."
   },
+  "auth": {
+    "working": "Verifica in corso…",
+    "logout": "Esci",
+    "fields": {
+      "username": "Nome utente",
+      "displayName": "Nome visualizzato",
+      "password": "Master password",
+      "confirmPassword": "Conferma master password",
+      "code": "Codice a 6 cifre",
+      "backupCode": "Codice di backup"
+    },
+    "setup": {
+      "title": "Configurazione iniziale",
+      "description": "Crea l'account amministratore dell'IT manager.",
+      "passwordHint": "Almeno {{min}} caratteri. Non viene mai inviata al server e non può essere recuperata: conservala con cura.",
+      "passwordTooShort": "La master password deve avere almeno {{min}} caratteri.",
+      "passwordMismatch": "Le due password non coincidono.",
+      "submit": "Crea amministratore"
+    },
+    "login": {
+      "title": "Accedi",
+      "description": "Inserisci le tue credenziali.",
+      "submit": "Continua"
+    },
+    "mfaEnroll": {
+      "title": "Configura l'autenticazione a due fattori",
+      "description": "L'autenticazione a due fattori è obbligatoria per tutti gli utenti.",
+      "loading": "Generazione della chiave…",
+      "step1": "Aggiungi un account nella tua app di autenticazione (ad esempio Microsoft Authenticator o Google Authenticator) inserendo manualmente questa chiave:",
+      "uriLabel": "Oppure usa questo indirizzo di configurazione:",
+      "step2": "Inserisci il codice a 6 cifre mostrato dall'app per confermare.",
+      "submit": "Conferma",
+      "backupTitle": "Codici di backup",
+      "backupDescription": "Usa uno di questi codici se perdi l'accesso all'app di autenticazione. Ogni codice vale una sola volta. Non verranno mostrati di nuovo: salvali ora in un luogo sicuro.",
+      "copy": "Copia i codici",
+      "copied": "Copiati",
+      "backupConfirm": "Ho salvato i codici"
+    },
+    "mfaVerify": {
+      "title": "Verifica in due passaggi",
+      "description": "Inserisci il codice mostrato dalla tua app di autenticazione.",
+      "backupDescription": "Inserisci uno dei codici di backup che hai salvato.",
+      "submit": "Verifica",
+      "useBackupCode": "Usa un codice di backup",
+      "useAuthenticator": "Usa l'app di autenticazione"
+    },
+    "errors": {
+      "invalidCredentials": "Credenziali non valide. Dopo 5 tentativi errati l'account viene bloccato per 15 minuti.",
+      "invalidCode": "Codice non valido. Dopo 5 tentativi errati l'account viene bloccato per 15 minuti.",
+      "tooManyAttempts": "Troppi tentativi da questo indirizzo. Riprova più tardi.",
+      "setupDone": "La configurazione iniziale è già stata completata.",
+      "sessionExpired": "La sessione è scaduta. Accedi di nuovo.",
+      "generic": "Si è verificato un errore imprevisto. Riprova."
+    }
+  },
   "health": {
     "title": "Stato del sistema",
     "loading": "Verifica in corso…",
