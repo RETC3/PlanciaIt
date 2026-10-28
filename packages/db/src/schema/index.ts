@@ -1,2 +1,2 @@
-// Drizzle table definitions. Tables are added starting from Phase 0, step 2.
-export {};
+// Drizzle table definitions.
+export * from './auth.js';
