@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@planciait/crypto": "workspace:*",
     "@planciait/shared": "workspace:*",
     "@tanstack/react-query": "^5.105.0",
     "@tanstack/react-router": "^1.170.46",
