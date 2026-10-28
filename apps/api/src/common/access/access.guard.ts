@@ -1,21 +1,23 @@
 import {
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
   type CanActivate,
   type ExecutionContext,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { SessionStage } from '@planciait/shared';
+import type { SessionStage, UserRole } from '@planciait/shared';
 import { SESSION_COOKIE, SessionService } from '../../auth/session.service.js';
 import { readCookie, type HttpRequest } from '../http.js';
 import { IS_PUBLIC_KEY } from './public.decorator.js';
-import { SESSION_STAGES_KEY } from './session.decorators.js';
+import { ROLES_KEY, SESSION_STAGES_KEY } from './session.decorators.js';
 
 /**
  * Global deny-by-default guard. A route is reachable only if it is marked
  * @Public() or the request carries a valid session cookie whose stage the
  * route accepts (default: `authenticated`, i.e. password and MFA completed).
- * Role and area permissions will extend this guard in the next Phase 0 steps.
+ * @Roles() further restricts a route to some roles (403 otherwise).
+ * Area permissions will extend this guard in the next Phase 0 steps.
  */
 @Injectable()
 export class AccessGuard implements CanActivate {
@@ -40,6 +42,11 @@ export class AccessGuard implements CanActivate {
     ) ?? ['authenticated'];
     if (!session || !allowedStages.includes(session.stage)) {
       throw new UnauthorizedException();
+    }
+
+    const roles = this.reflector.getAllAndOverride<UserRole[] | undefined>(ROLES_KEY, targets);
+    if (roles && !roles.includes(session.user.role)) {
+      throw new ForbiddenException();
     }
 
     request.session = session;

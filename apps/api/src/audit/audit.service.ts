@@ -11,7 +11,14 @@ export type AuditAction =
   | 'auth.backup_code_used'
   | 'auth.account_locked'
   | 'auth.logout'
-  | 'user.created';
+  | 'user.created'
+  | 'user.updated'
+  | 'user.role_changed'
+  | 'user.deactivated'
+  | 'user.reactivated'
+  | 'user.invitation_issued'
+  | 'user.invitation_accepted'
+  | 'user.mfa_reset';
 
 export interface AuditEntry {
   action: AuditAction;

@@ -1,10 +1,4 @@
-import {
-  createKdfParams,
-  encryptSecret,
-  generateToken,
-  hashAuthKey,
-  type KdfParams,
-} from '@planciait/crypto';
+import { createKdfParams, generateToken } from '@planciait/crypto';
 import { eq, schema } from '@planciait/db';
 import {
   mfaConfirmResponseSchema,
@@ -13,13 +7,16 @@ import {
   preloginResponseSchema,
   sessionResponseSchema,
 } from '@planciait/shared';
-import { Secret, TOTP } from 'otpauth';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import {
+  auditActions as auditActionsOf,
+  createTestUser,
+  TestClient,
+  totpCode,
+  type TestUser,
+} from '../test/helpers.js';
 import { startTestApp, ProtectedTestController, type TestApp } from '../test/test-app.js';
 import { IP_MAX_FAILURES, USER_MAX_FAILURES } from './login-throttle.service.js';
-import { SERVER_KEYS, type ServerKeys } from './server-keys.js';
-import { SESSION_COOKIE } from './session.service.js';
-import { createTotpSecret } from './totp.js';
 
 let testApp: TestApp;
 
@@ -31,79 +28,18 @@ afterAll(async () => {
   await testApp.close();
 });
 
-/** Minimal client that keeps the session cookie like a browser would. */
-class Client {
-  cookie: string | undefined;
-
-  async request(method: string, path: string, body?: unknown): Promise<Response> {
-    const headers: Record<string, string> = {};
-    if (body !== undefined) headers['Content-Type'] = 'application/json';
-    if (this.cookie) headers.Cookie = `${SESSION_COOKIE}=${this.cookie}`;
-    const response = await fetch(`${testApp.url}${path}`, {
-      method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    for (const header of response.headers.getSetCookie()) {
-      const match = new RegExp(`^${SESSION_COOKIE}=([^;]*)`).exec(header);
-      if (match) this.cookie = match[1] || undefined;
-    }
-    return response;
+class Client extends TestClient {
+  constructor() {
+    super(testApp);
   }
 }
 
-function totpCode(secret: string, offsetSteps = 0): string {
-  const totp = new TOTP({ secret: Secret.fromBase32(secret) });
-  return totp.generate({ timestamp: Date.now() + offsetSteps * 30_000 });
+function createUser(options: { mfaEnrolled?: boolean } = {}): Promise<TestUser> {
+  return createTestUser(testApp, options);
 }
 
-let userCounter = 0;
-
-interface TestUser {
-  username: string;
-  authKey: string;
-  kdf: KdfParams;
-  totpSecret: string;
-  id: string;
-}
-
-/** Inserts an active user with MFA already enrolled (user management comes in a later step). */
-async function createUser(options: { mfaEnrolled?: boolean } = {}): Promise<TestUser> {
-  const username = `user${userCounter++}`;
-  const authKey = await generateToken();
-  const kdf = await createKdfParams();
-  const totpSecret = await createTotpSecret();
-  const [row] = await testApp.database.db
-    .insert(schema.users)
-    .values({
-      username,
-      displayName: username,
-      role: 'technician',
-      authKeyHash: await hashAuthKey(authKey),
-      kdfSalt: kdf.salt,
-      kdfOpsLimit: kdf.opsLimit,
-      kdfMemLimit: kdf.memLimit,
-      totpEnabledAt: options.mfaEnrolled === false ? null : new Date(),
-    })
-    .returning();
-  if (!row) throw new Error('insert failed');
-  const keys = testApp.app.get<ServerKeys>(SERVER_KEYS);
-  await testApp.database.db
-    .update(schema.users)
-    .set({
-      totpSecretEncrypted: await encryptSecret(totpSecret, keys.totpEncryption, `totp:${row.id}`),
-    })
-    .where(eq(schema.users.id, row.id));
-  return { username, authKey, kdf, totpSecret, id: row.id };
-}
-
-async function auditActions(userId: string): Promise<string[]> {
-  const rows = await testApp.database.db
-    .select({ action: schema.auditLog.action })
-    .from(schema.auditLog)
-    .where(eq(schema.auditLog.actorUserId, userId))
-    .orderBy(schema.auditLog.occurredAt);
-  return rows.map((row) => row.action);
+function auditActions(userId: string): Promise<string[]> {
+  return auditActionsOf(testApp, userId);
 }
 
 describe('first-run setup and MFA enrollment', () => {
@@ -149,7 +85,7 @@ describe('first-run setup and MFA enrollment', () => {
     const [user] = await testApp.database.db.select().from(schema.users);
     expect(user?.username).toBe('admin');
     expect(user?.role).toBe('admin');
-    expect(user?.authKeyHash.startsWith('$argon2id$')).toBe(true);
+    expect(user?.authKeyHash?.startsWith('$argon2id$')).toBe(true);
     expect(user?.authKeyHash).not.toContain(authKey);
   });
 

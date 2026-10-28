@@ -6,9 +6,10 @@ import { AccessGuard } from './common/access/access.guard.js';
 import { ConfigModule } from './config/config.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { HealthModule } from './health/health.module.js';
+import { UsersModule } from './users/users.module.js';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, AuditModule, AuthModule, HealthModule],
+  imports: [ConfigModule, DatabaseModule, AuditModule, AuthModule, UsersModule, HealthModule],
   providers: [{ provide: APP_GUARD, useClass: AccessGuard }],
 })
 export class AppModule {}

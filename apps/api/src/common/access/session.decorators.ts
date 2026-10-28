@@ -1,5 +1,5 @@
 import { createParamDecorator, SetMetadata, type ExecutionContext } from '@nestjs/common';
-import type { SessionStage } from '@planciait/shared';
+import type { SessionStage, UserRole } from '@planciait/shared';
 import type { ResolvedSession } from '../../auth/session.service.js';
 import type { HttpRequest } from '../http.js';
 
@@ -11,6 +11,11 @@ export const SESSION_STAGES_KEY = 'access:session-stages';
  */
 export const AllowSessionStages = (...stages: SessionStage[]) =>
   SetMetadata(SESSION_STAGES_KEY, stages);
+
+export const ROLES_KEY = 'access:roles';
+
+/** Restricts a route (or a whole controller) to the given roles. */
+export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
 
 /** The session AccessGuard resolved for this request. */
 export const CurrentSession = createParamDecorator(

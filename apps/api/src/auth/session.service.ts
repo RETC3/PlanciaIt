@@ -130,6 +130,11 @@ export class SessionService {
     await this.database.db.delete(schema.sessions).where(eq(schema.sessions.id, sessionId));
   }
 
+  /** Signs a user out everywhere, e.g. after deactivation or a credential reset. */
+  async revokeAllForUser(userId: string, tx: DbExecutor = this.database.db): Promise<void> {
+    await tx.delete(schema.sessions).where(eq(schema.sessions.userId, userId));
+  }
+
   async revokeByToken(token: string): Promise<void> {
     const tokenHash = await hashSecret(token);
     await this.database.db.delete(schema.sessions).where(eq(schema.sessions.tokenHash, tokenHash));

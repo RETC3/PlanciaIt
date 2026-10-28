@@ -1,10 +1,15 @@
 import { Body, Controller, Get, HttpCode, Post, Req, Res } from '@nestjs/common';
 import {
+  acceptInvitationRequestSchema,
+  inspectInvitationRequestSchema,
   loginRequestSchema,
   mfaConfirmRequestSchema,
   mfaVerifyRequestSchema,
   preloginRequestSchema,
   setupRequestSchema,
+  type AcceptInvitationRequest,
+  type InspectInvitationRequest,
+  type InspectInvitationResponse,
   type LoginRequest,
   type MfaConfirmRequest,
   type MfaConfirmResponse,
@@ -64,6 +69,31 @@ export class AuthController {
     @Res({ passthrough: true }) response: HttpResponse,
   ): Promise<PendingSessionResponse> {
     return this.withSession(response, await this.auth.setup(body, client(request)));
+  }
+
+  @Public()
+  @Post('invitations/inspect')
+  @HttpCode(200)
+  async inspectInvitation(
+    @Body(new ZodPipe(inspectInvitationRequestSchema)) body: InspectInvitationRequest,
+    @Req() request: HttpRequest,
+  ): Promise<InspectInvitationResponse> {
+    return this.auth.inspectInvitation(body.token, client(request));
+  }
+
+  @Public()
+  @Post('invitations/accept')
+  @HttpCode(200)
+  async acceptInvitation(
+    @Body(new ZodPipe(acceptInvitationRequestSchema)) body: AcceptInvitationRequest,
+    @Req() request: HttpRequest,
+    @Res({ passthrough: true }) response: HttpResponse,
+  ): Promise<PendingSessionResponse> {
+    const previousToken = readCookie(request, SESSION_COOKIE);
+    if (previousToken) {
+      await this.sessions.revokeByToken(previousToken);
+    }
+    return this.withSession(response, await this.auth.acceptInvitation(body, client(request)));
   }
 
   @Public()
