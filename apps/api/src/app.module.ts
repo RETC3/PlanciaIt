@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AreasModule } from './areas/areas.module.js';
+import { AssetTypesModule } from './asset-types/asset-types.module.js';
+import { AssetsModule } from './assets/assets.module.js';
 import { AuditModule } from './audit/audit.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { AccessGuard } from './common/access/access.guard.js';
@@ -19,6 +21,8 @@ import { UsersModule } from './users/users.module.js';
     AuthModule,
     UsersModule,
     AreasModule,
+    AssetTypesModule,
+    AssetsModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AccessGuard }],

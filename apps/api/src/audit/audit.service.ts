@@ -24,7 +24,14 @@ export type AuditAction =
   | 'area.deleted'
   | 'area.member_added'
   | 'area.member_permission_changed'
-  | 'area.member_removed';
+  | 'area.member_removed'
+  | 'asset_type.created'
+  | 'asset_type.updated'
+  | 'asset_type.deleted'
+  | 'asset.created'
+  | 'asset.updated'
+  | 'asset.moved'
+  | 'asset.deleted';
 
 export interface AuditEntry {
   action: AuditAction;

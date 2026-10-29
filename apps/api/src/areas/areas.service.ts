@@ -17,7 +17,7 @@ import type {
 import { AuditService, type AuditEntry } from '../audit/audit.service.js';
 import type { ClientInfo, ResolvedSession } from '../auth/session.service.js';
 import { AreaAccessService } from '../common/access/area-access.service.js';
-import { isUniqueViolation } from '../common/database-errors.js';
+import { isForeignKeyViolation, isUniqueViolation } from '../common/database-errors.js';
 import { DATABASE } from '../database/database.module.js';
 import { userStatus } from '../users/user-summary.js';
 
@@ -131,8 +131,17 @@ export class AreasService {
     }
   }
 
-  /** Removes the area and its memberships. */
+  /** Removes the area and its memberships. An area that still holds assets cannot be removed. */
   async remove(actor: ResolvedSession, id: string, client: ClientInfo): Promise<void> {
+    try {
+      await this.removeEmpty(actor, id, client);
+    } catch (error) {
+      if (isForeignKeyViolation(error)) throw new ConflictException('Area is not empty');
+      throw error;
+    }
+  }
+
+  private async removeEmpty(actor: ResolvedSession, id: string, client: ClientInfo): Promise<void> {
     await this.database.db.transaction(async (tx) => {
       const [members] = await tx
         .select({ count: sql<number>`count(*)::int` })
