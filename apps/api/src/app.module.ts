@@ -11,6 +11,7 @@ import { ConfigModule } from './config/config.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { HealthModule } from './health/health.module.js';
 import { RelationsModule } from './relations/relations.module.js';
+import { SearchModule } from './search/search.module.js';
 import { UsersModule } from './users/users.module.js';
 
 @Module({
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module.js';
     AssetTypesModule,
     AssetsModule,
     RelationsModule,
+    SearchModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AccessGuard }],
