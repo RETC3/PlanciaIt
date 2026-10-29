@@ -24,6 +24,7 @@ import { AssetsPage } from './features/inventory/assets-page';
 import { LoginPage } from './features/auth/login-page';
 import { MfaEnrollPage } from './features/auth/mfa-enroll-page';
 import { MfaVerifyPage } from './features/auth/mfa-verify-page';
+import { SearchPage } from './features/search/search-page';
 import { SetupPage } from './features/auth/setup-page';
 import { UserDetailPage } from './features/users/user-detail-page';
 import { UsersPage } from './features/users/users-page';
@@ -178,6 +179,20 @@ const assetDetailRoute = createRoute({
   },
 });
 
+/** Open to every role: the API returns only what is in the user's areas. */
+const searchRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/search',
+  validateSearch: (search: Record<string, unknown>): { q: string } => ({
+    q: typeof search.q === 'string' ? search.q : '',
+  }),
+  component: function SearchRoute() {
+    const { q } = searchRoute.useSearch();
+    // Keyed by the text so that a new search starts from the first results.
+    return <SearchPage key={q} q={q} />;
+  },
+});
+
 const adminRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   id: 'admin',
@@ -224,6 +239,7 @@ const routeTree = rootRoute.addChildren([
     assetNewRoute,
     assetImportRoute,
     assetDetailRoute,
+    searchRoute,
     adminRoute.addChildren([usersRoute, userDetailRoute, assetTypesRoute]),
   ]),
 ]);

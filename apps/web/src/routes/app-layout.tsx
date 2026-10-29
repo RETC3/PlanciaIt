@@ -4,6 +4,7 @@ import { LogOut } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { fetchSession, logout, sessionQueryKey } from '@/features/auth/api';
+import { SearchBox } from '@/features/search/search-box';
 
 const navLinkClass =
   'rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground';
@@ -67,7 +68,8 @@ export function AppLayout() {
             ) : null}
           </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <SearchBox />
           <span className="text-sm">{session.data?.user.displayName}</span>
           <Button
             variant="outline"

@@ -368,6 +368,24 @@
       "invalidInput": "Controlla i dati inseriti."
     }
   },
+  "search": {
+    "label": "Cerca",
+    "placeholder": "Cerca asset, aree…",
+    "shortcut": "Premi / per cercare da qualsiasi pagina",
+    "title": "Ricerca",
+    "resultsFor": "Risultati per “{{q}}”",
+    "tooShort": "Scrivi almeno {{count}} caratteri.",
+    "empty": "Nessun risultato. Prova con una parte del nome, l'hostname, l'IP o il numero di serie.",
+    "groups": {
+      "assets": "Asset",
+      "areas": "Aree"
+    },
+    "count": "{{shown}} di {{total}}",
+    "more": "Mostra altri risultati",
+    "truncated": "Mostrati i primi {{count}}: affina la ricerca per trovare gli altri.",
+    "matchCustom": "{{label}}: {{value}}",
+    "match": "{{field}}: {{value}}"
+  },
   "health": {
     "title": "Stato del sistema",
     "loading": "Verifica in corso…",
