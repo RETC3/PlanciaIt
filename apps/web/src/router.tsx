@@ -17,6 +17,7 @@ import { AreaDetailPage } from './features/areas/area-detail-page';
 import { AreasPage } from './features/areas/areas-page';
 import { InvitePage } from './features/auth/invite-page';
 import { AssetDetailPage } from './features/inventory/asset-detail-page';
+import { AssetImportPage } from './features/inventory/asset-import-page';
 import { AssetNewPage } from './features/inventory/asset-new-page';
 import { AssetTypesPage } from './features/inventory/asset-types-page';
 import { AssetsPage } from './features/inventory/assets-page';
@@ -162,6 +163,12 @@ const assetNewRoute = createRoute({
   component: AssetNewPage,
 });
 
+const assetImportRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/assets/import',
+  component: AssetImportPage,
+});
+
 const assetDetailRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/assets/$assetId',
@@ -215,6 +222,7 @@ const routeTree = rootRoute.addChildren([
     areaDetailRoute,
     assetsRoute,
     assetNewRoute,
+    assetImportRoute,
     assetDetailRoute,
     adminRoute.addChildren([usersRoute, userDetailRoute, assetTypesRoute]),
   ]),

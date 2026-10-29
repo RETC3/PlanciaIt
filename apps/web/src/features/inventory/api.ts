@@ -3,12 +3,14 @@ import {
   assetResponseSchema,
   assetTypeListResponseSchema,
   assetTypeResponseSchema,
+  importAssetsResponseSchema,
   type AssetDetail,
   type AssetListQueryInput,
   type AssetListResponse,
   type AssetType,
   type CreateAssetRequest,
   type CreateAssetTypeRequest,
+  type ImportAssetsRequest,
   type UpdateAssetRequest,
   type UpdateAssetTypeRequest,
 } from '@planciait/shared';
@@ -80,4 +82,14 @@ export async function updateAsset(id: string, request: UpdateAssetRequest): Prom
 
 export async function deleteAsset(id: string): Promise<void> {
   await apiRequestNoContent(`/assets/${id}`, { method: 'DELETE' });
+}
+
+/** All or nothing: the API rejects the whole batch if any row is invalid. */
+export async function importAssets(request: ImportAssetsRequest): Promise<number> {
+  return (
+    await apiRequest('/assets/import', importAssetsResponseSchema, {
+      method: 'POST',
+      body: request,
+    })
+  ).imported;
 }

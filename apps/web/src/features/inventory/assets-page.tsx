@@ -1,7 +1,7 @@
 import { assetStatusSchema, type AssetStatus } from '@planciait/shared';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Plus, Search, Settings2 } from 'lucide-react';
+import { FileUp, Plus, Search, Settings2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -74,6 +74,12 @@ export function AssetsPage() {
             <Link to="/asset-types" className={`${linkClass} border hover:bg-secondary`}>
               <Settings2 aria-hidden="true" className="size-4" />
               {t('inventory.types.title')}
+            </Link>
+          ) : null}
+          {canCreate ? (
+            <Link to="/assets/import" className={`${linkClass} border hover:bg-secondary`}>
+              <FileUp aria-hidden="true" className="size-4" />
+              {t('inventory.import.open')}
             </Link>
           ) : null}
           {canCreate ? (
