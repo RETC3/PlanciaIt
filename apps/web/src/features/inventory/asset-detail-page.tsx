@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaPermissionBadge } from '@/features/areas/area-permission-badge';
 import { areasQueryKey, listAreas } from '@/features/areas/api';
 import { FormError } from '@/features/auth/form';
+import { RelationsCard } from '@/features/relations/relations-card';
 import { ApiError } from '@/lib/api';
 import { formatDateTime } from '@/lib/format';
 import {
@@ -156,6 +157,12 @@ export function AssetDetailPage({ assetId }: { assetId: string }) {
           </div>
 
           <EditAssetCard key={asset.data.id} asset={asset.data} types={types.data} />
+
+          <RelationsCard
+            key={`relations-${asset.data.id}`}
+            element={{ type: 'asset', id: asset.data.id }}
+            canEdit={asset.data.permission === 'write'}
+          />
 
           {asset.data.permission === 'write' ? <DeleteAssetButton asset={asset.data} /> : null}
         </>

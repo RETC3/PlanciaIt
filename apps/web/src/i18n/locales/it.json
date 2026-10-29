@@ -314,6 +314,60 @@
       "goToInventory": "Vai all'inventario"
     }
   },
+  "relations": {
+    "title": "Collegamenti",
+    "description": "Dipendenze e legami con altri elementi. Vedi solo i collegamenti verso elementi delle tue aree.",
+    "empty": "Nessun collegamento.",
+    "kinds": {
+      "depends_on": {
+        "outgoing": "Dipende da",
+        "incoming": "È necessario per"
+      },
+      "runs_on": {
+        "outgoing": "È ospitato su",
+        "incoming": "Ospita"
+      },
+      "located_in": {
+        "outgoing": "Si trova in",
+        "incoming": "Contiene"
+      },
+      "backed_up_to": {
+        "outgoing": "Ha il backup su",
+        "incoming": "Contiene il backup di"
+      },
+      "connected_to": {
+        "outgoing": "È collegato a",
+        "incoming": "È collegato a"
+      },
+      "related_to": {
+        "outgoing": "È correlato a",
+        "incoming": "È correlato a"
+      }
+    },
+    "fields": {
+      "kind": "Tipo di collegamento",
+      "element": "Elemento",
+      "area": "Area",
+      "note": "Nota",
+      "search": "Cerca un asset",
+      "target": "Asset da collegare"
+    },
+    "add": "Collega",
+    "actions": "Azioni",
+    "searchHint": "Scrivi almeno 2 caratteri del nome, dell'hostname, dell'IP o del numero di serie.",
+    "choose": "Scegli un asset…",
+    "noMatches": "Nessun asset trovato.",
+    "removeLabel": "Rimuovi il collegamento con {{name}}",
+    "confirm": {
+      "remove": "Rimuovere il collegamento con “{{name}}”?"
+    },
+    "errors": {
+      "duplicate": "Questo collegamento esiste già.",
+      "forbidden": "Non hai i permessi per modificare questo collegamento.",
+      "notFound": "Uno dei due elementi non esiste più o non è visibile.",
+      "invalidInput": "Controlla i dati inseriti."
+    }
+  },
   "health": {
     "title": "Stato del sistema",
     "loading": "Verifica in corso…",
