@@ -14,7 +14,8 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "db:generate": "pnpm --filter @planciait/db db:generate",
-    "db:migrate": "turbo run build --filter=@planciait/db && pnpm --filter @planciait/db db:migrate"
+    "db:migrate": "turbo run build --filter=@planciait/db && pnpm --filter @planciait/db db:migrate",
+    "db:seed": "turbo run build --filter=@planciait/db && pnpm --filter @planciait/db db:seed"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

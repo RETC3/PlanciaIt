@@ -18,3 +18,4 @@ export {
   sql,
 } from 'drizzle-orm';
 export { runMigrations } from './migrate.js';
+export { seedDatabase, SeedRefusedError, type SeedResult } from './seed.js';

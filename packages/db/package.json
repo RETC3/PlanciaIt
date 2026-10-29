@@ -20,7 +20,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "node dist/migrate.js"
+    "db:migrate": "node dist/migrate.js",
+    "db:seed": "node dist/seed.js"
   },
   "devDependencies": {
     "@types/node": "catalog:",
