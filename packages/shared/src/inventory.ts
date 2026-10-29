@@ -295,3 +295,23 @@ export const updateAssetRequestSchema = z
     message: 'At least one field is required',
   });
 export type UpdateAssetRequest = z.infer<typeof updateAssetRequestSchema>;
+
+// ---------------------------------------------------------------------------
+// CSV import (the browser parses the file and sends mapped rows)
+
+export const ASSET_IMPORT_MAX_ROWS = 1000;
+
+/** One asset of an import: area and type are shared by the whole batch. */
+export const importAssetRowSchema = createAssetRequestSchema.omit({ areaId: true, typeId: true });
+export type ImportAssetRow = z.infer<typeof importAssetRowSchema>;
+
+// POST /assets/import
+export const importAssetsRequestSchema = z.object({
+  areaId: idSchema,
+  typeId: idSchema,
+  assets: z.array(importAssetRowSchema).min(1).max(ASSET_IMPORT_MAX_ROWS),
+});
+export type ImportAssetsRequest = z.infer<typeof importAssetsRequestSchema>;
+
+export const importAssetsResponseSchema = z.object({ imported: z.int() });
+export type ImportAssetsResponse = z.infer<typeof importAssetsResponseSchema>;

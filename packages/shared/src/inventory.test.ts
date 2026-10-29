@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ASSET_IMPORT_MAX_ROWS,
   assetFieldDefinitionsSchema,
   assetListQuerySchema,
   createAssetRequestSchema,
   currentCustomFields,
+  importAssetsRequestSchema,
   validateCustomFields,
   type AssetFieldDefinition,
 } from './inventory.js';
@@ -128,5 +130,23 @@ describe('assetListQuerySchema', () => {
       offset: 40,
     });
     expect(assetListQuerySchema.safeParse({ limit: '1000' }).success).toBe(false);
+  });
+});
+
+describe('importAssetsRequestSchema', () => {
+  const ids = {
+    areaId: '00000000-0000-4000-8000-000000000001',
+    typeId: '00000000-0000-4000-8000-000000000002',
+  };
+
+  it('accepts rows without area and type, and limits the batch size', () => {
+    expect(importAssetsRequestSchema.safeParse({ ...ids, assets: [{ name: 'a' }] }).success).toBe(
+      true,
+    );
+    expect(importAssetsRequestSchema.safeParse({ ...ids, assets: [] }).success).toBe(false);
+    const tooMany = Array.from({ length: ASSET_IMPORT_MAX_ROWS + 1 }, (_, i) => ({
+      name: `a${i}`,
+    }));
+    expect(importAssetsRequestSchema.safeParse({ ...ids, assets: tooMany }).success).toBe(false);
   });
 });
