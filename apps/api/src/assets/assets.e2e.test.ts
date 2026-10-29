@@ -4,6 +4,8 @@ import {
   assetListResponseSchema,
   assetResponseSchema,
   assetTypeResponseSchema,
+  ASSET_IMPORT_MAX_ROWS,
+  importAssetsResponseSchema,
   type AreaSummary,
   type AssetDetail,
   type AssetType,
@@ -286,4 +288,90 @@ describe('deleting containers', () => {
     await adminClient.request('DELETE', `/assets/${asset.id}`);
     expect((await adminClient.request('DELETE', `/areas/${area.id}`)).status).toBe(204);
   });
+});
+
+describe('importing assets', () => {
+  function importBody(areaId: string, assets: Record<string, unknown>[]) {
+    return { areaId, typeId: serverType.id, assets };
+  }
+
+  it('creates every row in one go, with audit entries', async () => {
+    const area = await createArea();
+    const response = await adminClient.request(
+      'POST',
+      '/assets/import',
+      importBody(area.id, [
+        { name: 'imp-01', ipAddress: '10.1.0.1', customFields: { os: 'Linux', cores: 4 } },
+        { name: 'imp-02', status: 'in_stock', customFields: { os: 'Windows' } },
+      ]),
+    );
+    expect(response.status).toBe(201);
+    expect(importAssetsResponseSchema.parse(await response.json())).toEqual({ imported: 2 });
+
+    const list = assetListResponseSchema.parse(
+      await (await adminClient.request('GET', `/assets?areaId=${area.id}`)).json(),
+    );
+    expect(list.assets.map((asset) => [asset.name, asset.status])).toEqual([
+      ['imp-01', 'in_use'],
+      ['imp-02', 'in_stock'],
+    ]);
+
+    const audit = await testApp.database.db
+      .select({ action: schema.auditLog.action, details: schema.auditLog.details })
+      .from(schema.auditLog)
+      .where(and(eq(schema.auditLog.targetType, 'area'), eq(schema.auditLog.targetId, area.id)));
+    expect(audit).toContainEqual({
+      action: 'asset.imported',
+      details: { typeId: serverType.id, count: 2 },
+    });
+  });
+
+  it('rejects the whole batch if one row is invalid, naming the row', async () => {
+    const area = await createArea();
+    const response = await adminClient.request(
+      'POST',
+      '/assets/import',
+      importBody(area.id, [
+        { name: 'ok', customFields: { os: 'Linux' } },
+        { name: 'senza-os', customFields: {} },
+      ]),
+    );
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({
+      issues: [{ path: 'assets.1.customFields.os', message: 'Required' }],
+    });
+    const list = assetListResponseSchema.parse(
+      await (await adminClient.request('GET', `/assets?areaId=${area.id}`)).json(),
+    );
+    expect(list.total).toBe(0);
+  });
+
+  it('needs write permission on the area', async () => {
+    const area = await createArea();
+    const user = await technician([[area.id, 'read']]);
+    const body = importBody(area.id, [{ name: 'x', customFields: { os: 'Linux' } }]);
+    expect((await user.client.request('POST', '/assets/import', body)).status).toBe(403);
+    const stranger = await technician();
+    expect((await stranger.client.request('POST', '/assets/import', body)).status).toBe(404);
+  });
+
+  it('accepts a full batch of the maximum size', async () => {
+    const area = await createArea();
+    const assets = Array.from({ length: ASSET_IMPORT_MAX_ROWS }, (_, index) => ({
+      name: `bulk-${String(index).padStart(4, '0')}`,
+      hostname: `bulk-${index}.azienda.local`,
+      serialNumber: `SN-${index}-ABCDEFGHIJ`,
+      location: 'Sala server, armadio 3',
+      customFields: { os: 'Windows Server 2025 Datacenter', cores: 16 },
+    }));
+    const response = await adminClient.request(
+      'POST',
+      '/assets/import',
+      importBody(area.id, assets),
+    );
+    expect(response.status).toBe(201);
+    expect(importAssetsResponseSchema.parse(await response.json()).imported).toBe(
+      ASSET_IMPORT_MAX_ROWS,
+    );
+  }, 30_000);
 });

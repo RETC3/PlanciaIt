@@ -29,13 +29,15 @@ import {
   type CurrentUser,
   type CustomFieldInput,
   type CustomFieldValues,
+  type ImportAssetRow,
+  type ImportAssetsRequest,
   type UpdateAssetRequest,
 } from '@planciait/shared';
 import { fieldsOf, AssetTypesService } from '../asset-types/asset-types.service.js';
 import { AuditService, type AuditEntry } from '../audit/audit.service.js';
 import type { ClientInfo, ResolvedSession } from '../auth/session.service.js';
 import { AreaAccessService, permits } from '../common/access/area-access.service.js';
-import { invalidRequest } from '../common/validation/zod.pipe.js';
+import { invalidRequest, type ValidationIssue } from '../common/validation/zod.pipe.js';
 import { DATABASE } from '../database/database.module.js';
 
 type AssetRow = typeof schema.assets.$inferSelect;
@@ -71,6 +73,29 @@ function checkedCustomFields(type: AssetTypeRow, input: CustomFieldInput): Custo
 
 function unknownType(): BadRequestException {
   return invalidRequest([{ path: 'typeId', message: 'Unknown asset type' }]);
+}
+
+/** Insert values for a new asset; optional text left out becomes null. */
+function newAssetValues(
+  areaId: string,
+  typeId: string,
+  request: ImportAssetRow,
+  customFields: CustomFieldValues,
+): typeof schema.assets.$inferInsert {
+  return {
+    areaId,
+    typeId,
+    name: request.name,
+    status: request.status,
+    hostname: request.hostname ?? null,
+    ipAddress: request.ipAddress ?? null,
+    serialNumber: request.serialNumber ?? null,
+    manufacturer: request.manufacturer ?? null,
+    model: request.model ?? null,
+    location: request.location ?? null,
+    notes: request.notes ?? null,
+    customFields,
+  };
 }
 
 const summaryColumns = {
@@ -168,26 +193,15 @@ export class AssetsService {
     await this.access.require(actor.user, request.areaId, 'write');
     const type = await this.assetTypes.find(request.typeId);
     if (!type) throw unknownType();
-    const customFields = checkedCustomFields(type, request.customFields);
+    const values = newAssetValues(
+      request.areaId,
+      type.id,
+      request,
+      checkedCustomFields(type, request.customFields),
+    );
 
     const asset = await this.database.db.transaction(async (tx) => {
-      const [row] = await tx
-        .insert(schema.assets)
-        .values({
-          areaId: request.areaId,
-          typeId: type.id,
-          name: request.name,
-          status: request.status,
-          hostname: request.hostname ?? null,
-          ipAddress: request.ipAddress ?? null,
-          serialNumber: request.serialNumber ?? null,
-          manufacturer: request.manufacturer ?? null,
-          model: request.model ?? null,
-          location: request.location ?? null,
-          notes: request.notes ?? null,
-          customFields,
-        })
-        .returning();
+      const [row] = await tx.insert(schema.assets).values(values).returning();
       if (!row) throw new Error('Asset insert returned no row');
       await this.record(tx, actor, client, row, 'asset.created', {
         name: row.name,
@@ -197,6 +211,66 @@ export class AssetsService {
       return row;
     });
     return this.detail(asset.id, 'write');
+  }
+
+  /**
+   * Creates a batch of assets of one type in one area, all or nothing: a
+   * single invalid row rejects the whole request, listing every problem.
+   */
+  async importMany(
+    actor: ResolvedSession,
+    request: ImportAssetsRequest,
+    client: ClientInfo,
+  ): Promise<number> {
+    await this.access.require(actor.user, request.areaId, 'write');
+    const type = await this.assetTypes.find(request.typeId);
+    if (!type) throw unknownType();
+
+    const fields = fieldsOf(type);
+    const issues: ValidationIssue[] = [];
+    const values = request.assets.map((row, index) => {
+      const result = validateCustomFields(fields, row.customFields);
+      if (!result.success) {
+        for (const issue of result.issues) {
+          issues.push({
+            path: `assets.${index}.customFields.${issue.key}`,
+            message: issue.message,
+          });
+        }
+        return null;
+      }
+      return newAssetValues(request.areaId, type.id, row, result.values);
+    });
+    if (issues.length > 0) throw invalidRequest(issues);
+
+    return this.database.db.transaction(async (tx) => {
+      const rows = await tx
+        .insert(schema.assets)
+        .values(values.filter((value) => value !== null))
+        .returning();
+      await this.audit.recordMany(
+        [
+          ...rows.map((row) => ({
+            action: 'asset.created' as const,
+            actorUserId: actor.user.id,
+            ipAddress: client.ipAddress,
+            targetType: 'asset',
+            targetId: row.id,
+            details: { name: row.name, areaId: row.areaId, typeId: row.typeId, imported: true },
+          })),
+          {
+            action: 'asset.imported',
+            actorUserId: actor.user.id,
+            ipAddress: client.ipAddress,
+            targetType: 'area',
+            targetId: request.areaId,
+            details: { typeId: type.id, count: rows.length },
+          },
+        ],
+        tx,
+      );
+      return rows.length;
+    });
   }
 
   async update(

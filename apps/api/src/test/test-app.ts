@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Controller, Get, type INestApplication, type Type } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import { createDatabase, DEV_DATABASE_URL, runMigrations, type Database } from '@planciait/db';
 import { AppModule } from '../app.module.js';
+import { configureHttp } from '../common/http-setup.js';
 import { APP_CONFIG, loadConfig } from '../config/config.js';
 import { DATABASE } from '../database/database.module.js';
 
@@ -43,7 +45,8 @@ export async function startTestApp(controllers: Type[] = []): Promise<TestApp> {
     .overrideProvider(APP_CONFIG)
     .useValue({ ...loadConfig({ NODE_ENV: 'test' }), databaseUrl: databaseUrl.toString() })
     .compile();
-  const app = moduleRef.createNestApplication({ logger: false });
+  const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
+  configureHttp(app);
   await app.listen(0, '127.0.0.1');
 
   return {

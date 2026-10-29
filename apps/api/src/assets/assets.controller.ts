@@ -14,11 +14,14 @@ import {
   assetListQuerySchema,
   createAssetRequestSchema,
   idSchema,
+  importAssetsRequestSchema,
   updateAssetRequestSchema,
   type AssetListQuery,
   type AssetListResponse,
   type AssetResponse,
   type CreateAssetRequest,
+  type ImportAssetsRequest,
+  type ImportAssetsResponse,
   type UpdateAssetRequest,
 } from '@planciait/shared';
 import type { ResolvedSession } from '../auth/session.service.js';
@@ -53,6 +56,16 @@ export class AssetsController {
     @Req() request: HttpRequest,
   ): Promise<AssetResponse> {
     return { asset: await this.assets.create(session, body, clientInfo(request)) };
+  }
+
+  @Post('import')
+  @HttpCode(201)
+  async import(
+    @Body(new ZodPipe(importAssetsRequestSchema)) body: ImportAssetsRequest,
+    @CurrentSession() session: ResolvedSession,
+    @Req() request: HttpRequest,
+  ): Promise<ImportAssetsResponse> {
+    return { imported: await this.assets.importMany(session, body, clientInfo(request)) };
   }
 
   @Get(':id')

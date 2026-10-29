@@ -31,7 +31,8 @@ export type AuditAction =
   | 'asset.created'
   | 'asset.updated'
   | 'asset.moved'
-  | 'asset.deleted';
+  | 'asset.deleted'
+  | 'asset.imported';
 
 export interface AuditEntry {
   action: AuditAction;
@@ -50,13 +51,21 @@ export class AuditService {
 
   /** Pass `tx` to write the entry in the same transaction as the audited change. */
   async record(entry: AuditEntry, tx: DbExecutor = this.database.db): Promise<void> {
-    await tx.insert(schema.auditLog).values({
-      action: entry.action,
-      actorUserId: entry.actorUserId ?? null,
-      targetType: entry.targetType ?? null,
-      targetId: entry.targetId ?? null,
-      ipAddress: entry.ipAddress ?? null,
-      details: entry.details ?? {},
-    });
+    await this.recordMany([entry], tx);
+  }
+
+  /** Several entries in one statement, e.g. one per asset of an import. */
+  async recordMany(entries: AuditEntry[], tx: DbExecutor = this.database.db): Promise<void> {
+    if (entries.length === 0) return;
+    await tx.insert(schema.auditLog).values(
+      entries.map((entry) => ({
+        action: entry.action,
+        actorUserId: entry.actorUserId ?? null,
+        targetType: entry.targetType ?? null,
+        targetId: entry.targetId ?? null,
+        ipAddress: entry.ipAddress ?? null,
+        details: entry.details ?? {},
+      })),
+    );
   }
 }

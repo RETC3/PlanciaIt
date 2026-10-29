@@ -3,11 +3,12 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
+import { configureHttp } from './common/http-setup.js';
 import { APP_CONFIG, type AppConfig } from './config/config.js';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.disable('x-powered-by');
+  configureHttp(app);
   app.enableShutdownHooks();
 
   const config = app.get<AppConfig>(APP_CONFIG);
