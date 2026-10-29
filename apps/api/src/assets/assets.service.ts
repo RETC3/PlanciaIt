@@ -11,7 +11,6 @@ import {
   count,
   eq,
   ilike,
-  inArray,
   or,
   schema,
   sql,
@@ -37,6 +36,7 @@ import { fieldsOf, AssetTypesService } from '../asset-types/asset-types.service.
 import { AuditService, type AuditEntry } from '../audit/audit.service.js';
 import type { ClientInfo, ResolvedSession } from '../auth/session.service.js';
 import { AreaAccessService, permits } from '../common/access/area-access.service.js';
+import { containsPattern } from '../common/like.js';
 import { invalidRequest, type ValidationIssue } from '../common/validation/zod.pipe.js';
 import { DATABASE } from '../database/database.module.js';
 
@@ -55,11 +55,6 @@ const plainFields = [
   'location',
   'notes',
 ] as const;
-
-/** Escapes LIKE wildcards so a search for "100%" matches literally. */
-function likePattern(text: string): string {
-  return `%${text.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;
-}
 
 function checkedCustomFields(type: AssetTypeRow, input: CustomFieldInput): CustomFieldValues {
   const result = validateCustomFields(fieldsOf(type), input);
@@ -144,21 +139,13 @@ export class AssetsService {
       query.status ? eq(schema.assets.status, query.status) : undefined,
       query.q
         ? or(
-            ilike(schema.assets.name, likePattern(query.q)),
-            ilike(schema.assets.hostname, likePattern(query.q)),
-            ilike(schema.assets.ipAddress, likePattern(query.q)),
-            ilike(schema.assets.serialNumber, likePattern(query.q)),
+            ilike(schema.assets.name, containsPattern(query.q)),
+            ilike(schema.assets.hostname, containsPattern(query.q)),
+            ilike(schema.assets.ipAddress, containsPattern(query.q)),
+            ilike(schema.assets.serialNumber, containsPattern(query.q)),
           )
         : undefined,
-      user.role === 'admin'
-        ? undefined
-        : inArray(
-            schema.assets.areaId,
-            this.database.db
-              .select({ areaId: schema.areaMembers.areaId })
-              .from(schema.areaMembers)
-              .where(eq(schema.areaMembers.userId, user.id)),
-          ),
+      this.access.readableAreas(user, schema.assets.areaId),
     ];
     const where = and(...conditions);
 

@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, eq, schema, type Database, type DbExecutor } from '@planciait/db';
+import { and, eq, inArray, schema, type Database, type DbExecutor } from '@planciait/db';
 import type { AreaPermission, CurrentUser } from '@planciait/shared';
 import { DATABASE } from '../../database/database.module.js';
 
@@ -38,6 +38,21 @@ export class AreaAccessService {
       .where(and(eq(schema.areaMembers.areaId, areaId), eq(schema.areaMembers.userId, user.id)))
       .limit(1);
     return membership?.permission ?? null;
+  }
+
+  /**
+   * A query condition keeping only rows whose `areaColumn` is an area the user
+   * can read; undefined for administrators, who read every area.
+   */
+  readableAreas(user: CurrentUser, areaColumn: Parameters<typeof inArray>[0]) {
+    if (user.role === 'admin') return undefined;
+    return inArray(
+      areaColumn,
+      this.database.db
+        .select({ areaId: schema.areaMembers.areaId })
+        .from(schema.areaMembers)
+        .where(eq(schema.areaMembers.userId, user.id)),
+    );
   }
 
   /**
