@@ -285,7 +285,15 @@ function DeleteAreaCard({ area }: { area: AreaSummary }) {
             {t('areas.delete.submit')}
           </Button>
         </div>
-        <FormError message={mutation.isError ? areaErrorMessage(mutation.error, t) : null} />
+        <FormError
+          message={
+            !mutation.isError
+              ? null
+              : mutation.error instanceof ApiError && mutation.error.status === 409
+                ? t('areas.errors.notEmpty')
+                : areaErrorMessage(mutation.error, t)
+          }
+        />
       </CardContent>
     </Card>
   );

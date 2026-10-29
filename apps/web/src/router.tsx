@@ -16,6 +16,10 @@ import {
 import { AreaDetailPage } from './features/areas/area-detail-page';
 import { AreasPage } from './features/areas/areas-page';
 import { InvitePage } from './features/auth/invite-page';
+import { AssetDetailPage } from './features/inventory/asset-detail-page';
+import { AssetNewPage } from './features/inventory/asset-new-page';
+import { AssetTypesPage } from './features/inventory/asset-types-page';
+import { AssetsPage } from './features/inventory/assets-page';
 import { LoginPage } from './features/auth/login-page';
 import { MfaEnrollPage } from './features/auth/mfa-enroll-page';
 import { MfaVerifyPage } from './features/auth/mfa-verify-page';
@@ -146,6 +150,27 @@ const areaDetailRoute = createRoute({
   },
 });
 
+const assetsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/assets',
+  component: AssetsPage,
+});
+
+const assetNewRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/assets/new',
+  component: AssetNewPage,
+});
+
+const assetDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/assets/$assetId',
+  component: function AssetDetailRoute() {
+    const { assetId } = assetDetailRoute.useParams();
+    return <AssetDetailPage assetId={assetId} />;
+  },
+});
+
 const adminRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   id: 'admin',
@@ -170,6 +195,12 @@ const userDetailRoute = createRoute({
   },
 });
 
+const assetTypesRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/asset-types',
+  component: AssetTypesPage,
+});
+
 const routeTree = rootRoute.addChildren([
   authLayoutRoute.addChildren([
     setupRoute,
@@ -182,7 +213,10 @@ const routeTree = rootRoute.addChildren([
     homeRoute,
     areasRoute,
     areaDetailRoute,
-    adminRoute.addChildren([usersRoute, userDetailRoute]),
+    assetsRoute,
+    assetNewRoute,
+    assetDetailRoute,
+    adminRoute.addChildren([usersRoute, userDetailRoute, assetTypesRoute]),
   ]),
 ]);
 

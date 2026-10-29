@@ -11,6 +11,7 @@
   },
   "nav": {
     "home": "Panoramica",
+    "inventory": "Inventario",
     "areas": "Aree",
     "users": "Utenti"
   },
@@ -174,7 +175,7 @@
     },
     "delete": {
       "title": "Elimina area",
-      "description": "L'eliminazione rimuove anche tutte le assegnazioni dei tecnici. Non può essere annullata.",
+      "description": "Si possono eliminare solo le aree senza asset. L'eliminazione rimuove anche tutte le assegnazioni dei tecnici e non può essere annullata.",
       "submit": "Elimina area"
     },
     "confirm": {
@@ -184,7 +185,101 @@
     "errors": {
       "nameTaken": "Esiste già un'area con questo nome.",
       "invalidInput": "Controlla i dati inseriti.",
-      "notFound": "Area non trovata."
+      "notFound": "Area non trovata.",
+      "notEmpty": "L'area contiene ancora degli asset: spostali o eliminali prima di eliminare l'area."
+    }
+  },
+  "inventory": {
+    "title": "Inventario",
+    "empty": "Nessun asset. Aggiungi il primo server o dispositivo.",
+    "emptyFiltered": "Nessun asset corrisponde ai filtri.",
+    "fields": {
+      "name": "Nome",
+      "status": "Stato",
+      "area": "Area",
+      "type": "Tipo",
+      "hostname": "Hostname",
+      "ipAddress": "Indirizzo IP",
+      "serialNumber": "Numero di serie",
+      "manufacturer": "Produttore",
+      "model": "Modello",
+      "location": "Posizione",
+      "notes": "Note",
+      "updatedAt": "Ultima modifica"
+    },
+    "status": {
+      "in_use": "In uso",
+      "in_stock": "In magazzino",
+      "maintenance": "In manutenzione",
+      "retired": "Dismesso"
+    },
+    "filters": {
+      "search": "Cerca",
+      "searchPlaceholder": "Nome, hostname, IP o numero di serie",
+      "all": "Tutti"
+    },
+    "pagination": {
+      "range": "{{from}}–{{to}} di {{total}}",
+      "previous": "Precedenti",
+      "next": "Successivi"
+    },
+    "create": {
+      "open": "Nuovo asset",
+      "title": "Nuovo asset",
+      "submit": "Crea asset",
+      "noWritableArea": "Non hai il permesso di scrittura su nessuna area. Chiedi all'amministratore.",
+      "noTypes": "Non esiste ancora nessun tipo di asset. Chiedi all'amministratore di crearne uno."
+    },
+    "form": {
+      "none": "—",
+      "customFields": "Campi del tipo {{type}}",
+      "invalidCustomFields": "Controlla questi campi: {{fields}}."
+    },
+    "detail": {
+      "data": "Dati dell'asset",
+      "summary": "{{type}} · area {{area}} · modificato il {{date}}",
+      "readOnly": "Hai accesso in sola lettura a quest'area.",
+      "delete": "Elimina asset"
+    },
+    "confirm": {
+      "delete": "Eliminare l'asset “{{name}}”? L'operazione non può essere annullata.",
+      "deleteType": "Eliminare il tipo “{{name}}”?"
+    },
+    "types": {
+      "title": "Tipi di asset",
+      "pageDescription": "Ogni tipo definisce i campi personalizzati dei suoi asset. I tipi valgono per tutte le aree.",
+      "newTitle": "Nuovo tipo",
+      "editTitle": "Modifica {{name}}",
+      "name": "Nome",
+      "description": "Descrizione",
+      "fields": "Campi personalizzati",
+      "assets": "Asset",
+      "noFields": "Nessun campo personalizzato: gli asset avranno solo i campi comuni.",
+      "addField": "Aggiungi campo",
+      "fieldLabel": "Etichetta",
+      "fieldKey": "Chiave",
+      "fieldKind": "Tipo di dato",
+      "fieldRequired": "Obbligatorio",
+      "fieldOptions": "Opzioni (una per riga)",
+      "removeField": "Rimuovi il campo {{label}}",
+      "kinds": {
+        "text": "Testo",
+        "number": "Numero",
+        "date": "Data",
+        "boolean": "Sì/No",
+        "select": "Elenco di scelta"
+      },
+      "invalidFields": "Controlla i campi: ogni chiave deve essere unica, iniziare con una lettera minuscola e contenere solo lettere minuscole, cifre e trattini bassi; gli elenchi di scelta richiedono almeno un'opzione, senza doppioni.",
+      "inUseHint": "Usato da {{count}} asset. I valori dei campi rimossi restano salvati ma non vengono mostrati; i nuovi campi obbligatori si applicano dal prossimo salvataggio di ogni asset.",
+      "inUse": "Il tipo è usato da almeno un asset e non può essere eliminato.",
+      "edit": "Modifica {{name}}",
+      "delete": "Elimina {{name}}"
+    },
+    "errors": {
+      "invalidInput": "Controlla i dati inseriti.",
+      "forbidden": "Non hai il permesso di scrittura su quest'area.",
+      "notFound": "Asset non trovato.",
+      "conflict": "Operazione non riuscita: il nome è già in uso oppure l'elemento contiene ancora degli asset."
     }
   },
   "health": {

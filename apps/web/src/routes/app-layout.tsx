@@ -43,6 +43,13 @@ export function AppLayout() {
               {t('nav.home')}
             </Link>
             <Link
+              to="/assets"
+              className={navLinkClass}
+              activeProps={{ className: activeNavLinkClass }}
+            >
+              {t('nav.inventory')}
+            </Link>
+            <Link
               to="/areas"
               className={navLinkClass}
               activeProps={{ className: activeNavLinkClass }}
