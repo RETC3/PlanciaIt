@@ -27,25 +27,15 @@ import { Public } from '../common/access/public.decorator.js';
 import { AllowSessionStages, CurrentSession } from '../common/access/session.decorators.js';
 import {
   clearCookie,
-  clientIp,
+  clientInfo,
   readCookie,
   setCookie,
-  userAgent,
   type HttpRequest,
   type HttpResponse,
 } from '../common/http.js';
 import { ZodPipe } from '../common/validation/zod.pipe.js';
 import { AuthService, type AuthResult } from './auth.service.js';
-import {
-  SESSION_COOKIE,
-  SessionService,
-  type ClientInfo,
-  type ResolvedSession,
-} from './session.service.js';
-
-function client(request: HttpRequest): ClientInfo {
-  return { ipAddress: clientIp(request), userAgent: userAgent(request) };
-}
+import { SESSION_COOKIE, SessionService, type ResolvedSession } from './session.service.js';
 
 @Controller('auth')
 export class AuthController {
@@ -68,7 +58,7 @@ export class AuthController {
     @Req() request: HttpRequest,
     @Res({ passthrough: true }) response: HttpResponse,
   ): Promise<PendingSessionResponse> {
-    return this.withSession(response, await this.auth.setup(body, client(request)));
+    return this.withSession(response, await this.auth.setup(body, clientInfo(request)));
   }
 
   @Public()
@@ -78,7 +68,7 @@ export class AuthController {
     @Body(new ZodPipe(inspectInvitationRequestSchema)) body: InspectInvitationRequest,
     @Req() request: HttpRequest,
   ): Promise<InspectInvitationResponse> {
-    return this.auth.inspectInvitation(body.token, client(request));
+    return this.auth.inspectInvitation(body.token, clientInfo(request));
   }
 
   @Public()
@@ -93,7 +83,7 @@ export class AuthController {
     if (previousToken) {
       await this.sessions.revokeByToken(previousToken);
     }
-    return this.withSession(response, await this.auth.acceptInvitation(body, client(request)));
+    return this.withSession(response, await this.auth.acceptInvitation(body, clientInfo(request)));
   }
 
   @Public()
@@ -103,7 +93,7 @@ export class AuthController {
     @Body(new ZodPipe(preloginRequestSchema)) body: PreloginRequest,
     @Req() request: HttpRequest,
   ): Promise<PreloginResponse> {
-    return this.auth.prelogin(body.username, client(request));
+    return this.auth.prelogin(body.username, clientInfo(request));
   }
 
   @Public()
@@ -118,7 +108,7 @@ export class AuthController {
     if (previousToken) {
       await this.sessions.revokeByToken(previousToken);
     }
-    return this.withSession(response, await this.auth.login(body, client(request)));
+    return this.withSession(response, await this.auth.login(body, clientInfo(request)));
   }
 
   @AllowSessionStages('mfa_enrollment')
@@ -141,7 +131,7 @@ export class AuthController {
   ): Promise<MfaConfirmResponse> {
     return this.withSession(
       response,
-      await this.auth.confirmEnrollment(session, body, client(request)),
+      await this.auth.confirmEnrollment(session, body, clientInfo(request)),
     );
   }
 
@@ -154,7 +144,10 @@ export class AuthController {
     @Req() request: HttpRequest,
     @Res({ passthrough: true }) response: HttpResponse,
   ): Promise<MfaVerifyResponse> {
-    return this.withSession(response, await this.auth.verifyMfa(session, body, client(request)));
+    return this.withSession(
+      response,
+      await this.auth.verifyMfa(session, body, clientInfo(request)),
+    );
   }
 
   @AllowSessionStages('mfa_enrollment', 'mfa_verification', 'authenticated')
@@ -171,7 +164,7 @@ export class AuthController {
     @Req() request: HttpRequest,
     @Res({ passthrough: true }) response: HttpResponse,
   ): Promise<void> {
-    await this.auth.logout(session, client(request));
+    await this.auth.logout(session, clientInfo(request));
     clearCookie(response, SESSION_COOKIE);
   }
 

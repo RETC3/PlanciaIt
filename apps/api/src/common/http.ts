@@ -1,10 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { ResolvedSession } from '../auth/session.service.js';
+import type { ClientInfo, ResolvedSession } from '../auth/session.service.js';
 
 /** The subset of the Express request the API relies on. */
 export interface HttpRequest extends IncomingMessage {
   /** Client address, honouring the configured "trust proxy" setting. */
   ip?: string;
+  /** Route parameters, already populated when guards run. */
+  params?: Record<string, string | undefined>;
   /** Set by AccessGuard for authenticated routes. */
   session?: ResolvedSession;
 }
@@ -18,6 +20,11 @@ export function clientIp(request: HttpRequest): string {
 export function userAgent(request: HttpRequest): string | null {
   const value = request.headers['user-agent'];
   return value ? value.slice(0, 512) : null;
+}
+
+/** Who sent the request, for sessions and audit entries. */
+export function clientInfo(request: HttpRequest): ClientInfo {
+  return { ipAddress: clientIp(request), userAgent: userAgent(request) };
 }
 
 export function readCookie(request: HttpRequest, name: string): string | undefined {

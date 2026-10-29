@@ -18,7 +18,13 @@ export type AuditAction =
   | 'user.reactivated'
   | 'user.invitation_issued'
   | 'user.invitation_accepted'
-  | 'user.mfa_reset';
+  | 'user.mfa_reset'
+  | 'area.created'
+  | 'area.updated'
+  | 'area.deleted'
+  | 'area.member_added'
+  | 'area.member_permission_changed'
+  | 'area.member_removed';
 
 export interface AuditEntry {
   action: AuditAction;

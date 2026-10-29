@@ -14,21 +14,12 @@ import type {
 } from '@planciait/shared';
 import { AuditService, type AuditEntry } from '../audit/audit.service.js';
 import { SessionService, type ClientInfo, type ResolvedSession } from '../auth/session.service.js';
+import { isUniqueViolation } from '../common/database-errors.js';
 import { DATABASE } from '../database/database.module.js';
 import { createInvitation, invitationResetValues } from './invitation.js';
 import { toUserSummary } from './user-summary.js';
 
 type UserRow = typeof schema.users.$inferSelect;
-
-/** Postgres unique_violation. */
-const UNIQUE_VIOLATION = '23505';
-
-function isUniqueViolation(error: unknown): boolean {
-  const cause = error instanceof Error && error.cause !== undefined ? error.cause : error;
-  return typeof cause === 'object' && cause !== null && 'code' in cause
-    ? cause.code === UNIQUE_VIOLATION
-    : false;
-}
 
 /** Administrator operations on user accounts. Users are deactivated, never deleted. */
 @Injectable()
@@ -131,9 +122,19 @@ export class UsersService {
         });
       }
       if (row.role !== user.role) {
+        // Administrators see every area, so memberships would only linger and
+        // come back to life on a later demotion: drop them on promotion.
+        const removed =
+          row.role === 'admin'
+            ? await tx
+                .delete(schema.areaMembers)
+                .where(eq(schema.areaMembers.userId, row.id))
+                .returning({ areaId: schema.areaMembers.areaId })
+            : [];
         await this.record(tx, actor, client, row, 'user.role_changed', {
           from: user.role,
           to: row.role,
+          areaMembershipsRemoved: removed.length,
         });
         // Sessions read the role on every request, so the change applies at once.
       }

@@ -10,14 +10,10 @@ import {
   type UserResponse,
 } from '@planciait/shared';
 import { CurrentSession, Roles } from '../common/access/session.decorators.js';
-import { clientIp, userAgent, type HttpRequest } from '../common/http.js';
+import { clientInfo, type HttpRequest } from '../common/http.js';
 import { ZodPipe } from '../common/validation/zod.pipe.js';
-import type { ClientInfo, ResolvedSession } from '../auth/session.service.js';
+import type { ResolvedSession } from '../auth/session.service.js';
 import { UsersService } from './users.service.js';
-
-function client(request: HttpRequest): ClientInfo {
-  return { ipAddress: clientIp(request), userAgent: userAgent(request) };
-}
 
 const idPipe = new ZodPipe(idSchema);
 
@@ -38,7 +34,7 @@ export class UsersController {
     @CurrentSession() session: ResolvedSession,
     @Req() request: HttpRequest,
   ): Promise<InvitationResponse> {
-    return this.users.create(session, body, client(request));
+    return this.users.create(session, body, clientInfo(request));
   }
 
   @Get(':id')
@@ -53,7 +49,7 @@ export class UsersController {
     @CurrentSession() session: ResolvedSession,
     @Req() request: HttpRequest,
   ): Promise<UserResponse> {
-    return { user: await this.users.update(session, id, body, client(request)) };
+    return { user: await this.users.update(session, id, body, clientInfo(request)) };
   }
 
   @Post(':id/invitation')
@@ -63,7 +59,7 @@ export class UsersController {
     @CurrentSession() session: ResolvedSession,
     @Req() request: HttpRequest,
   ): Promise<InvitationResponse> {
-    return this.users.reissueInvitation(session, id, client(request));
+    return this.users.reissueInvitation(session, id, clientInfo(request));
   }
 
   @Post(':id/mfa-reset')
@@ -73,6 +69,6 @@ export class UsersController {
     @CurrentSession() session: ResolvedSession,
     @Req() request: HttpRequest,
   ): Promise<UserResponse> {
-    return { user: await this.users.resetMfa(session, id, client(request)) };
+    return { user: await this.users.resetMfa(session, id, clientInfo(request)) };
   }
 }
