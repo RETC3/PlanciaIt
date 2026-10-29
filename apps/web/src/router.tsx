@@ -13,6 +13,8 @@ import {
   sessionQueryKey,
   setupStatusQueryKey,
 } from './features/auth/api';
+import { AreaDetailPage } from './features/areas/area-detail-page';
+import { AreasPage } from './features/areas/areas-page';
 import { InvitePage } from './features/auth/invite-page';
 import { LoginPage } from './features/auth/login-page';
 import { MfaEnrollPage } from './features/auth/mfa-enroll-page';
@@ -128,6 +130,22 @@ const homeRoute = createRoute({
   component: HomePage,
 });
 
+/** Open to every role: the API returns only the areas the user may see. */
+const areasRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/areas',
+  component: AreasPage,
+});
+
+const areaDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/areas/$areaId',
+  component: function AreaDetailRoute() {
+    const { areaId } = areaDetailRoute.useParams();
+    return <AreaDetailPage areaId={areaId} />;
+  },
+});
+
 const adminRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   id: 'admin',
@@ -160,7 +178,12 @@ const routeTree = rootRoute.addChildren([
     mfaEnrollRoute,
     mfaVerifyRoute,
   ]),
-  appLayoutRoute.addChildren([homeRoute, adminRoute.addChildren([usersRoute, userDetailRoute])]),
+  appLayoutRoute.addChildren([
+    homeRoute,
+    areasRoute,
+    areaDetailRoute,
+    adminRoute.addChildren([usersRoute, userDetailRoute]),
+  ]),
 ]);
 
 export const router = createRouter({ routeTree, context: { queryClient } });

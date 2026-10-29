@@ -11,6 +11,7 @@
   },
   "nav": {
     "home": "Panoramica",
+    "areas": "Aree",
     "users": "Utenti"
   },
   "auth": {
@@ -134,6 +135,56 @@
       "invalidInput": "Controlla i dati inseriti.",
       "notAllowed": "Operazione non consentita su questo utente.",
       "notFound": "Utente non trovato."
+    }
+  },
+  "areas": {
+    "title": "Aree",
+    "descriptionAdmin": "Le aree raggruppano server, credenziali e procedure. I tecnici vedono solo le aree a cui sono assegnati.",
+    "descriptionTechnician": "Le aree a cui sei assegnato.",
+    "emptyAdmin": "Nessuna area. Crea la prima per iniziare a organizzare l'infrastruttura.",
+    "emptyTechnician": "Non sei ancora assegnato a nessuna area. Chiedi all'amministratore.",
+    "fields": {
+      "name": "Nome",
+      "description": "Descrizione",
+      "permission": "Permesso"
+    },
+    "permissions": {
+      "read": "Sola lettura",
+      "write": "Lettura e scrittura"
+    },
+    "create": {
+      "open": "Nuova area",
+      "title": "Nuova area",
+      "submit": "Crea area"
+    },
+    "detail": {
+      "details": "Dati dell'area",
+      "comingSoon": "Il contenuto dell'area (inventario, credenziali, procedure) sarà disponibile nei prossimi aggiornamenti."
+    },
+    "members": {
+      "title": "Tecnici assegnati",
+      "description": "Gli amministratori vedono sempre tutte le aree. Ogni modifica ha effetto immediato e viene registrata nell'audit log.",
+      "empty": "Nessun tecnico assegnato a quest'area.",
+      "actions": "Azioni",
+      "user": "Tecnico",
+      "choose": "Scegli un tecnico…",
+      "add": "Assegna",
+      "noCandidates": "Tutti i tecnici attivi sono già assegnati a quest'area.",
+      "removeLabel": "Rimuovi {{name}} dall'area"
+    },
+    "delete": {
+      "title": "Elimina area",
+      "description": "L'eliminazione rimuove anche tutte le assegnazioni dei tecnici. Non può essere annullata.",
+      "submit": "Elimina area"
+    },
+    "confirm": {
+      "removeMember": "Rimuovere il tecnico dall'area? Perderà subito l'accesso.",
+      "delete": "Eliminare l'area “{{name}}”? L'operazione non può essere annullata."
+    },
+    "errors": {
+      "nameTaken": "Esiste già un'area con questo nome.",
+      "invalidInput": "Controlla i dati inseriti.",
+      "notFound": "Area non trovata."
     }
   },
   "health": {

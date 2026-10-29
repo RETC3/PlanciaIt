@@ -42,6 +42,13 @@ export function AppLayout() {
             >
               {t('nav.home')}
             </Link>
+            <Link
+              to="/areas"
+              className={navLinkClass}
+              activeProps={{ className: activeNavLinkClass }}
+            >
+              {t('nav.areas')}
+            </Link>
             {isAdmin ? (
               <Link
                 to="/users"
