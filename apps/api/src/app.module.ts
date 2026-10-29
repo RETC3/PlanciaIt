@@ -10,6 +10,7 @@ import { AccessModule } from './common/access/access.module.js';
 import { ConfigModule } from './config/config.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { HealthModule } from './health/health.module.js';
+import { RelationsModule } from './relations/relations.module.js';
 import { UsersModule } from './users/users.module.js';
 
 @Module({
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module.js';
     AreasModule,
     AssetTypesModule,
     AssetsModule,
+    RelationsModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AccessGuard }],

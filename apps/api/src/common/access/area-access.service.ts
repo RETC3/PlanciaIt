@@ -41,6 +41,25 @@ export class AreaAccessService {
   }
 
   /**
+   * For checks on many areas at once (e.g. both ends of each relation): loads
+   * the user's memberships once and answers like permissionFor for areas that
+   * exist. It does not check that an area exists, so callers pass area ids
+   * read from existing elements.
+   */
+  async permissionLookup(
+    user: CurrentUser,
+    tx: DbExecutor = this.database.db,
+  ): Promise<(areaId: string) => AreaPermission | null> {
+    if (user.role === 'admin') return () => 'write';
+    const memberships = await tx
+      .select({ areaId: schema.areaMembers.areaId, permission: schema.areaMembers.permission })
+      .from(schema.areaMembers)
+      .where(eq(schema.areaMembers.userId, user.id));
+    const byArea = new Map(memberships.map((row) => [row.areaId, row.permission]));
+    return (areaId) => byArea.get(areaId) ?? null;
+  }
+
+  /**
    * Throws unless the user holds `needed` on the area. An area the user cannot
    * see at all is reported as missing (404) so its existence is not revealed;
    * read-only access to a write action is a 403.

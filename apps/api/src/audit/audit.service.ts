@@ -32,7 +32,9 @@ export type AuditAction =
   | 'asset.updated'
   | 'asset.moved'
   | 'asset.deleted'
-  | 'asset.imported';
+  | 'asset.imported'
+  | 'relation.created'
+  | 'relation.deleted';
 
 export interface AuditEntry {
   action: AuditAction;
