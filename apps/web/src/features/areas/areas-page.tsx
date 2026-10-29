@@ -59,7 +59,7 @@ export function AreasPage() {
     <div className="grid max-w-5xl gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">{t('areas.title')}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('areas.title')}</h1>
           <p className="text-sm text-muted-foreground">
             {isAdmin ? t('areas.descriptionAdmin') : t('areas.descriptionTechnician')}
           </p>
@@ -83,7 +83,7 @@ export function AreasPage() {
           {isAdmin ? t('areas.emptyAdmin') : t('areas.emptyTechnician')}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
           <table className="w-full text-sm">
             <thead className="bg-secondary text-left">
               <tr>

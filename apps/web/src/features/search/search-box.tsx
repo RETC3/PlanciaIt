@@ -38,7 +38,7 @@ export function SearchBox() {
   }
 
   return (
-    <form role="search" className="relative w-full sm:w-64" onSubmit={handleSubmit}>
+    <form role="search" className="relative w-full max-w-sm" onSubmit={handleSubmit}>
       <Search
         aria-hidden="true"
         className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
@@ -51,9 +51,15 @@ export function SearchBox() {
         placeholder={t('search.placeholder')}
         aria-label={t('search.label')}
         title={t('search.shortcut')}
-        className="pl-8"
+        className="border-transparent bg-secondary pr-9 pl-8 shadow-none"
         onChange={(event) => setText(event.target.value)}
       />
+      <kbd
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded border bg-card px-1.5 font-mono text-[0.65rem] text-muted-foreground"
+      >
+        /
+      </kbd>
     </form>
   );
 }

@@ -313,7 +313,7 @@ export function AssetTypesPage() {
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">{t('inventory.types.title')}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('inventory.types.title')}</h1>
           <p className="text-sm text-muted-foreground">{t('inventory.types.pageDescription')}</p>
         </div>
         {editing === null ? (
@@ -339,7 +339,7 @@ export function AssetTypesPage() {
       ) : types.isError ? (
         <FormError message={t('auth.errors.generic')} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
           <table className="w-full text-sm">
             <thead className="bg-secondary text-left">
               <tr>

@@ -112,7 +112,7 @@ export function UsersPage() {
   return (
     <div className="grid max-w-5xl gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">{t('users.title')}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('users.title')}</h1>
         {!creating && !invitation ? (
           <Button onClick={() => setCreating(true)}>
             <UserPlus aria-hidden="true" className="size-4" />
@@ -138,7 +138,7 @@ export function UsersPage() {
       ) : users.isError ? (
         <FormError message={t('auth.errors.generic')} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
+        <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
           <table className="w-full text-sm">
             <thead className="bg-secondary text-left">
               <tr>

@@ -125,7 +125,7 @@ export function SearchPage({ q }: { q: string }) {
 
   return (
     <div className="grid max-w-3xl gap-6">
-      <h1 className="text-xl font-semibold">
+      <h1 className="text-2xl font-semibold tracking-tight">
         {enabled ? t('search.resultsFor', { q: text }) : t('search.title')}
       </h1>
 

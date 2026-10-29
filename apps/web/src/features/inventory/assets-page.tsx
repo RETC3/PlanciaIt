@@ -68,7 +68,7 @@ export function AssetsPage() {
   return (
     <div className="grid max-w-6xl gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">{t('inventory.title')}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('inventory.title')}</h1>
         <div className="flex flex-wrap gap-2">
           {isAdmin ? (
             <Link to="/asset-types" className={`${linkClass} border hover:bg-secondary`}>
@@ -170,7 +170,7 @@ export function AssetsPage() {
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
             <table className="w-full text-sm">
               <thead className="bg-secondary text-left">
                 <tr>

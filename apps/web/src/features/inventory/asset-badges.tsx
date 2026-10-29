@@ -5,9 +5,9 @@ import { Badge } from '@/components/ui/badge';
 const statusVariant = {
   in_use: 'default',
   in_stock: 'secondary',
-  maintenance: 'outline',
+  maintenance: 'warning',
   retired: 'destructive',
-} as const satisfies Record<AssetStatus, 'default' | 'secondary' | 'outline' | 'destructive'>;
+} as const satisfies Record<AssetStatus, 'default' | 'secondary' | 'warning' | 'destructive'>;
 
 export function AssetStatusBadge({ status }: { status: AssetStatus }) {
   const { t } = useTranslation();

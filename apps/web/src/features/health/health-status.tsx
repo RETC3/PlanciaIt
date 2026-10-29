@@ -14,7 +14,7 @@ export function HealthStatus() {
   });
 
   return (
-    <section className="rounded-lg border bg-card p-4 text-card-foreground">
+    <section className="rounded-xl border bg-card p-5 text-card-foreground shadow-xs">
       <h2 className="mb-3 text-sm font-semibold">{t('health.title')}</h2>
       {isPending ? (
         <p className="text-sm text-muted-foreground">{t('health.loading')}</p>

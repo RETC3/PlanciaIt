@@ -149,7 +149,7 @@ export function AssetImportPage() {
         {t('inventory.title')}
       </Link>
       <div>
-        <h1 className="text-xl font-semibold">{t('inventory.import.title')}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('inventory.import.title')}</h1>
         <p className="text-sm text-muted-foreground">
           {t('inventory.import.description', { max: ASSET_IMPORT_MAX_ROWS })}
         </p>
@@ -312,7 +312,7 @@ export function AssetImportPage() {
                 </div>
               ) : null}
               {preview.valid.length > 0 ? (
-                <div className="overflow-x-auto rounded-lg border">
+                <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
                   <table className="w-full text-sm">
                     <thead className="bg-secondary text-left">
                       <tr>

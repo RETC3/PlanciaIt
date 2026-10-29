@@ -143,7 +143,7 @@ export function AssetDetailPage({ assetId }: { assetId: string }) {
         <>
           <div className="grid gap-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-semibold">{asset.data.name}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">{asset.data.name}</h1>
               <AssetStatusBadge status={asset.data.status} />
               <AreaPermissionBadge permission={asset.data.permission} />
             </div>

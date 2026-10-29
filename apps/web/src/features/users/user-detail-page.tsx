@@ -215,7 +215,7 @@ export function UserDetailPage({ userId }: { userId: string }) {
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-xl font-semibold">{user.data.displayName}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{user.data.displayName}</h1>
             <UserStatusBadge status={user.data.status} />
           </div>
           <p className="text-sm text-muted-foreground">

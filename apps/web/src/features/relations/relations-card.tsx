@@ -194,7 +194,7 @@ export function RelationsCard({ element, canEdit }: { element: ElementRef; canEd
         ) : relations.data.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('relations.empty')}</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
             <table className="w-full text-sm">
               <thead className="bg-secondary text-left">
                 <tr>

@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "PlanciaIT",
-    "tagline": "La plancia di comando dell'IT manager."
+    "tagline": "La plancia di comando dell'IT manager.",
+    "label": "IT manager"
   },
   "common": {
     "loading": "Caricamento…",
@@ -13,7 +14,15 @@
     "home": "Panoramica",
     "inventory": "Inventario",
     "areas": "Aree",
-    "users": "Utenti"
+    "users": "Utenti",
+    "assetTypes": "Tipi di asset",
+    "label": "Menu principale",
+    "openMenu": "Apri il menu",
+    "closeMenu": "Chiudi il menu",
+    "sections": {
+      "general": "Generale",
+      "admin": "Amministrazione"
+    }
   },
   "auth": {
     "working": "Verifica in corso…",
@@ -402,5 +411,13 @@
       "ok": "OK",
       "error": "Errore"
     }
+  },
+  "theme": {
+    "light": "Passa al tema chiaro",
+    "dark": "Passa al tema scuro"
+  },
+  "home": {
+    "title": "Panoramica",
+    "description": "Lo stato della piattaforma a colpo d'occhio."
   }
 }

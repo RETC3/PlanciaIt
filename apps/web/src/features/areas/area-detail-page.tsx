@@ -149,7 +149,7 @@ function MembersCard({ areaId }: { areaId: string }) {
         ) : members.data.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('areas.members.empty')}</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
             <table className="w-full text-sm">
               <thead className="bg-secondary text-left">
                 <tr>
@@ -330,7 +330,7 @@ export function AreaDetailPage({ areaId }: { areaId: string }) {
         <>
           <div className="grid gap-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-semibold">{area.data.name}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">{area.data.name}</h1>
               {isAdmin ? null : <AreaPermissionBadge permission={area.data.permission} />}
             </div>
             {area.data.description ? (
