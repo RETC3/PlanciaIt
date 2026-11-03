@@ -30,8 +30,8 @@
     "fields": {
       "username": "Nome utente",
       "displayName": "Nome visualizzato",
-      "password": "Master password",
-      "confirmPassword": "Conferma master password",
+      "password": "Password",
+      "confirmPassword": "Conferma password",
       "code": "Codice a 6 cifre",
       "backupCode": "Codice di backup"
     },
@@ -76,13 +76,13 @@
       "generic": "Si è verificato un errore imprevisto. Riprova."
     },
     "masterPassword": {
-      "hint": "Almeno {{min}} caratteri. Non viene mai inviata al server e non può essere recuperata: conservala con cura.",
-      "tooShort": "La master password deve avere almeno {{min}} caratteri.",
+      "hint": "Almeno {{min}} caratteri. Non viene mai inviata al server. Se la dimentichi, l'amministratore può reimpostare il tuo accesso.",
+      "tooShort": "La password deve avere almeno {{min}} caratteri.",
       "mismatch": "Le due password non coincidono."
     },
     "invite": {
       "title": "Attiva il tuo account",
-      "description": "Ciao {{displayName}}, scegli la master password per l'utente {{username}}. Subito dopo configurerai l'autenticazione a due fattori.",
+      "description": "Ciao {{displayName}}, scegli la password per l'utente {{username}}. Subito dopo configurerai l'autenticazione a due fattori.",
       "invalid": "Il link d'invito non è valido o è scaduto. Chiedi all'amministratore di generarne uno nuovo.",
       "submit": "Attiva account"
     }
@@ -138,7 +138,7 @@
       "deactivate": "Disattivare l'utente? Verrà disconnesso subito e non potrà più accedere.",
       "reactivate": "Riattivare l'utente?",
       "resetMfa": "Reimpostare la MFA? L'utente verrà disconnesso e dovrà configurare di nuovo l'app di autenticazione al prossimo accesso.",
-      "resetAccess": "Reimpostare l'accesso? La master password e la MFA attuali verranno eliminate e verrà generato un nuovo link d'invito."
+      "resetAccess": "Reimpostare l'accesso? La password e la MFA attuali verranno eliminate e verrà generato un nuovo link d'invito."
     },
     "errors": {
       "usernameTaken": "Esiste già un utente con questo nome.",

@@ -2,7 +2,7 @@
 
 > La plancia di comando dell'IT manager.
 
-PlanciaIT è una web app che centralizza documentazione, password, inventario e monitoraggio dell'infrastruttura IT di una singola azienda. Utenti: l'IT manager (amministratore, vede tutto) e il suo team IT (vede solo le aree assegnate). Interfaccia in italiano. Prodotto open-core, installabile on-premise o in cloud tramite Docker.
+PlanciaIT è una web app che centralizza documentazione, inventario e monitoraggio dell'infrastruttura IT di una singola azienda. Utenti: l'IT manager (amministratore, vede tutto) e il suo team IT (vede solo le aree assegnate). Interfaccia in italiano. Prodotto open-core, installabile on-premise o in cloud tramite Docker.
 
 Questo file è la fonte di verità per lo sviluppo. Leggilo all'inizio di ogni sessione e rispettalo. Se una richiesta è in conflitto con queste regole, fermati e chiedi.
 
@@ -65,19 +65,14 @@ docker compose -f deploy/docker-compose.yml up -d   # ambiente completo
 
 ## Regole di sicurezza (non negoziabili)
 
-### Vault zero-knowledge
+### Password e crittografia
 
-- Il server **non deve mai** ricevere, salvare o loggare una password in chiaro, né la master password, né una chiave non cifrata.
-- Tutta la cifratura e decifratura del vault avviene nel browser, tramite `packages/crypto`. Nessun'altra parte del codice implementa crittografia.
-- Primitive ammesse, solo da libsodium:
-  - derivazione chiave dalla master password: **Argon2id** (`crypto_pwhash`), salt casuale per utente;
-  - cifratura simmetrica: **XChaCha20-Poly1305** (`crypto_aead_xchacha20poly1305_ietf`), nonce casuale per ogni cifratura;
-  - coppie di chiavi e condivisione: **X25519** (`crypto_box_seal` per cifrare la chiave d'area per un membro).
+- PlanciaIT **non** conserva le password dei sistemi gestiti: niente vault né archivio di credenziali (ADR 0008).
+- Il server **non deve mai** ricevere, salvare o loggare la password di accesso in chiaro: il browser ne deriva con **Argon2id** (`crypto_pwhash`, salt casuale per utente) la chiave di autenticazione, e il server ne salva solo un hash.
+- Tutta la crittografia vive in `packages/crypto` e usa solo libsodium. Nessun'altra parte del codice implementa crittografia.
 - Mai inventare schemi crittografici, mai usare `Math.random`, mai riutilizzare un nonce.
-- Separazione tra login e cifratura: dalla master password si derivano due chiavi distinte, una per l'autenticazione (il server ne salva solo un hash) e una per decifrare la chiave privata dell'utente.
-- Modello: ogni utente ha una coppia X25519; la privata è salvata cifrata. Ogni area ha una chiave simmetrica, salvata cifrata con la pubblica di ogni membro. Revoca = eliminare la copia del membro e ruotare la chiave dell'area.
-- Kit di emergenza: chiave di recupero generata alla registrazione, mostrata una sola volta.
-- Ogni modifica a `packages/crypto` richiede test dedicati (round-trip, nonce diversi, decifratura fallita con chiave errata) e va segnalata esplicitamente nel riepilogo.
+- Password dimenticata o MFA persa: solo l'amministratore reimposta l'accesso (nuovo link d'invito) o la MFA dell'utente.
+- Ogni modifica a `packages/crypto` richiede test dedicati e va segnalata esplicitamente nel riepilogo.
 
 ### Autenticazione e permessi
 
@@ -88,13 +83,13 @@ docker compose -f deploy/docker-compose.yml up -d   # ambiente completo
 
 ### Audit e dati
 
-- Ogni azione rilevante (accesso, visualizzazione o copia di una credenziale, creazione, modifica, eliminazione, cambio permessi) scrive una riga nell'audit log. L'audit log non si modifica e non si cancella dall'applicazione.
-- Mai loggare segreti, token, contenuto del vault o corpi di richiesta completi.
+- Ogni azione rilevante (accesso, creazione, modifica, eliminazione, cambio permessi) scrive una riga nell'audit log. L'audit log non si modifica e non si cancella dall'applicazione.
+- Mai loggare segreti, token o corpi di richiesta completi.
 - Validare ogni input con zod (schemi in `packages/shared`). Query solo tramite Drizzle o SQL parametrizzato.
 
 ## Modello dati (sintesi)
 
-Utente, Area, Asset (tipi + campi personalizzati), Credenziale (cifrata), Procedura e Versione procedura, Agent, Controllo, Misura, Allarme, Fornitore, Licenza, **Relazione** (collegamento generico tra due elementi qualsiasi), Audit log. Ogni elemento appartiene a un'area e ne eredita i permessi. Dettaglio completo nel documento di progetto.
+Utente, Area, Asset (tipi + campi personalizzati), Procedura e Versione procedura, Agent, Controllo, Misura, Allarme, Fornitore, Licenza, **Relazione** (collegamento generico tra due elementi qualsiasi), Audit log. Ogni elemento appartiene a un'area e ne eredita i permessi. Dettaglio completo nel documento di progetto.
 
 ## Convenzioni
 
@@ -114,10 +109,10 @@ Utente, Area, Asset (tipi + campi personalizzati), Credenziale (cifrata), Proced
 ## Roadmap
 
 - **Fase 0 – Fondamenta:** monorepo, autenticazione, MFA, utenti, aree e permessi, audit log, inventario base con import CSV, relazioni, ricerca globale.
-- **Fase 1 – MVP:** vault zero-knowledge, procedure e knowledge base, agent e monitoraggio essenziale (ping, porta TCP, HTTP/HTTPS, scadenza certificato, CPU/RAM/dischi/servizi), allarmi via email, backup ed export cifrato.
+- **Fase 1 – MVP:** procedure e knowledge base, agent e monitoraggio essenziale (ping, porta TCP, HTTP/HTTPS, scadenza certificato, CPU/RAM/dischi/servizi), allarmi via email, backup ed export cifrato.
 - Fase 2 – Gestione: licenze e contratti, fornitori, dashboard, chiavi di licenza open-core.
 - Fase 3 – Monitoraggio avanzato: SNMP, storico, rilevamento automatico, mappa infrastruttura.
-- Fase 4 – Compliance e AI: report NIS2/GDPR, change management, API pubblica, assistente AI (mai sul vault).
+- Fase 4 – Compliance e AI: report NIS2/GDPR, change management, API pubblica, assistente AI.
 - Fase 5 – Cloud e vendita.
 
 Lavora una fase alla volta e un modulo alla volta. Non anticipare funzioni di fasi successive.
